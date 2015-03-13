@@ -6,6 +6,7 @@ function main() {
 
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+    core.preload("img/chara1.png");
     core.fps = 15;
     core.onload = function () {
         var background = (function () {
@@ -25,7 +26,18 @@ function main() {
             })();
             return sprite;
         })();
+        var bear = (function () {
+            var width = 32;
+            var height = 32;
+            var sprite = new Sprite(width, height);
+            sprite.image = core.assets["img/chara1.png"];
+            sprite.frame = [0];
+            sprite.x = (STAGE_WIDTH / 2) - (width / 2);
+            sprite.y = (STAGE_HEIGHT / 2) - (height / 2);
+            return sprite;
+        })();
         core.rootScene.addChild(background);
+        core.rootScene.addChild(bear);
     };
     core.start();
 }
