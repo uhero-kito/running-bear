@@ -36,6 +36,20 @@ function main() {
             sprite.y = (STAGE_HEIGHT / 2) - (height / 2);
             return sprite;
         })();
+        var controller = (function () {
+            var areaWidth = STAGE_WIDTH;
+            var areaHeight = DISPLAY_HEIGHT - STAGE_HEIGHT;
+            var sprite  = new Sprite(areaWidth, areaHeight);
+            sprite.image = (function () {
+                var surface = new Surface(areaWidth, areaHeight);
+                surface.context.fillStyle = "#ffffff";
+                surface.context.fillRect(0, 0, areaWidth, areaHeight);
+                return surface;
+            })();
+            sprite.x = 0;
+            sprite.y = STAGE_HEIGHT;
+            return sprite;
+        })();
         var cursor = (function () {
             var width = 120;
             var height = 120;
@@ -49,6 +63,7 @@ function main() {
         })();
         core.rootScene.addChild(background);
         core.rootScene.addChild(bear);
+        core.rootScene.addChild(controller);
         core.rootScene.addChild(cursor);
 
         // 左右どちらのボタンが押されているかを管理します
@@ -133,7 +148,7 @@ function main() {
             }
 
             var heart = createHeart();
-            core.rootScene.addChild(heart);
+            core.rootScene.insertBefore(heart, controller);
         };
         core.rootScene.addEventListener(Event.ENTER_FRAME, createObject);
     };
