@@ -9,7 +9,7 @@ function main() {
 
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    core.preload("img/chara1.png", "img/cursor.png", "img/heart.png");
+    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png");
     core.fps = 15;
     core.onload = function () {
         var background = (function () {
@@ -176,13 +176,40 @@ function main() {
             });
             return sprite;
         };
+        var createBall = function (e) {
+            var width = 16;
+            var height = 16;
+            var sprite = new Sprite(width, height);
+            sprite.image = core.assets["img/icon1.png"];
+            sprite.x = Math.random() * (STAGE_WIDTH - width);
+            var topToBottom = (Math.random() < 0.5); // true: 上から下, false: 下から上
+            var speed = 2 + (Math.random() * 3);
+            sprite.y = topToBottom ? - width : STAGE_HEIGHT;
+            var frameIndex = (Math.random() < 0.5) ? 0 : 1;
+            sprite.frame = [frameIndex];
+            sprite.addEventListener(Event.ENTER_FRAME, function (e) {
+                sprite.y += topToBottom ? speed : - speed;
+                sprite.rotate(15);
+                var out = (topToBottom && STAGE_HEIGHT < sprite.y) || (!topToBottom && sprite.y < - width);
+                if (out) {
+                    core.rootScene.removeChild(sprite);
+                }
+            });
+            return sprite;
+        };
         var createObject = function (e) {
-            if (0.03 < Math.random()) {
+            var rand = Math.random();
+            if (0.06 < rand) {
                 return;
             }
 
-            var heart = createHeart();
-            core.rootScene.insertBefore(heart, controller);
+            if (0.03 < rand) {
+                var heart = createHeart();
+                core.rootScene.insertBefore(heart, controller);
+            } else {
+                var ball = createBall();
+                core.rootScene.insertBefore(ball, controller);
+            }
         };
         core.rootScene.addEventListener(Event.ENTER_FRAME, createObject);
     };
