@@ -50,6 +50,44 @@ function main() {
         core.rootScene.addChild(background);
         core.rootScene.addChild(bear);
         core.rootScene.addChild(cursor);
+
+        // 左右どちらのボタンが押されているかを管理します
+        var INPUT_NONE = 0;
+        var INPUT_LEFT = 1;
+        var INPUT_RIGHT = 2;
+        var currentInput = INPUT_NONE;
+
+        /**
+         * ボタン上をタッチまたはスワイプした際に発火する関数です。
+         * 以下の処理を行います。
+         * 
+         * - ボタンのスプライトを変更し、押された感じを表現します
+         * 
+         * @param {Event} e
+         */
+        var inputCursor = function (e) {
+            var input = (e.x < STAGE_WIDTH / 2) ? INPUT_LEFT : INPUT_RIGHT;
+            if (currentInput !== input) {
+                currentInput = input;
+                cursor.frame = [input];
+            }
+        };
+
+        /**
+         * ボタンから指を離した際に発火する関数です。
+         * 以下の処理を行います。
+         * 
+         * - ボタンのスプライトをデフォルトに変更します
+         * 
+         * @param {Event} e
+         */
+        var stopCursor = function (e) {
+            currentInput = INPUT_NONE;
+            cursor.frame = [INPUT_NONE];
+        };
+        cursor.addEventListener(Event.TOUCH_START, inputCursor);
+        cursor.addEventListener(Event.TOUCH_MOVE, inputCursor);
+        cursor.addEventListener(Event.TOUCH_END, stopCursor);
     };
     core.start();
 }
