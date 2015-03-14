@@ -96,6 +96,9 @@ function main() {
         // ハートをキャッチするたびに増える得点です
         var score = 0;
 
+        // ボールがプレイヤーに当たった時に true になります
+        var gameover = false;
+
         /**
          * ボタン上をタッチまたはスワイプした際に発火する関数です。
          * 以下の処理を行います。
@@ -111,9 +114,11 @@ function main() {
                 currentInput = input;
                 cursor.frame = [input];
 
-                var newScale = (currentInput === INPUT_RIGHT) ? 1 : -1;
-                bear.scaleX = newScale;
-                bear.frame = [0, 0, 1, 1, 0, 0, 2, 2];
+                if (!gameover) {
+                    var newScale = (currentInput === INPUT_RIGHT) ? 1 : -1;
+                    bear.scaleX = newScale;
+                    bear.frame = [0, 0, 1, 1, 0, 0, 2, 2];
+                }
             }
         };
 
@@ -129,7 +134,9 @@ function main() {
         var stopCursor = function (e) {
             currentInput = INPUT_NONE;
             cursor.frame = [INPUT_NONE];
-            bear.frame = [0];
+            if (!gameover) {
+                bear.frame = [0];
+            }
         };
         cursor.addEventListener(Event.TOUCH_START, inputCursor);
         cursor.addEventListener(Event.TOUCH_MOVE, inputCursor);
@@ -162,6 +169,9 @@ function main() {
             sprite.y = topToBottom ? -width : STAGE_HEIGHT;
             sprite.frame = [0, 0, 0, 1, 1, 1];
             sprite.addEventListener(Event.ENTER_FRAME, function (e) {
+                if (gameover) {
+                    return;
+                }
                 sprite.y += topToBottom ? 3 : -3;
                 var out = (topToBottom && STAGE_HEIGHT < sprite.y) || (!topToBottom && sprite.y < -width);
                 if (out) {
@@ -188,11 +198,20 @@ function main() {
             var frameIndex = (Math.random() < 0.5) ? 0 : 1;
             sprite.frame = [frameIndex];
             sprite.addEventListener(Event.ENTER_FRAME, function (e) {
-                sprite.y += topToBottom ? speed : - speed;
                 sprite.rotate(15);
+                if (gameover) {
+                    return;
+                }
+                sprite.y += topToBottom ? speed : - speed;
                 var out = (topToBottom && STAGE_HEIGHT < sprite.y) || (!topToBottom && sprite.y < - width);
                 if (out) {
                     core.rootScene.removeChild(sprite);
+                }
+                // ボールがプレイヤーに当たったらゲームオーバーとします
+                if (sprite.within(bear, width)) {
+                    gameover = true;
+                    bear.frame = [3];
+                    bear.removeEventListener(Event.ENTER_FRAME, moveBear);
                 }
             });
             return sprite;
