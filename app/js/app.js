@@ -129,14 +129,18 @@ function main() {
         bear.addEventListener(Event.ENTER_FRAME, moveBear);
 
         var createHeart = function () {
-            var sprite = new Sprite(32, 32);
+            var width = 32;
+            var height = 32;
+            var sprite = new Sprite(width, height);
             sprite.image = core.assets["img/heart.png"];
-            sprite.x = Math.random() * (STAGE_WIDTH - 32);
-            sprite.y = -32;
+            sprite.x = Math.random() * (STAGE_WIDTH - width);
+            var topToBottom = (Math.random() < 0.5); // true: 上から下, false: 下から上
+            sprite.y = topToBottom ? - width : STAGE_HEIGHT;
             sprite.frame = [0, 0, 0, 1, 1, 1];
             sprite.addEventListener(Event.ENTER_FRAME, function (e) {
-                sprite.y += 3;
-                if (STAGE_HEIGHT < sprite.y) {
+                sprite.y += topToBottom ? 3 : -3;
+                var out = (topToBottom && STAGE_HEIGHT < sprite.y) || (!topToBottom && sprite.y < - width);
+                if (out) {
                     core.rootScene.removeChild(sprite);
                 }
             });
