@@ -3,6 +3,9 @@ function main() {
     var DISPLAY_HEIGHT = 450;
     var STAGE_WIDTH = DISPLAY_WIDTH;
     var STAGE_HEIGHT = DISPLAY_WIDTH;
+    var SCORE_LEFT = 16;
+    var SCORE_TOP = 16;
+    var SCORE_TITLE_WIDTH = 48;
 
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
@@ -39,7 +42,7 @@ function main() {
         var controller = (function () {
             var areaWidth = STAGE_WIDTH;
             var areaHeight = DISPLAY_HEIGHT - STAGE_HEIGHT;
-            var sprite  = new Sprite(areaWidth, areaHeight);
+            var sprite = new Sprite(areaWidth, areaHeight);
             sprite.image = (function () {
                 var surface = new Surface(areaWidth, areaHeight);
                 surface.context.fillStyle = "#ffffff";
@@ -61,16 +64,37 @@ function main() {
             sprite.y = STAGE_HEIGHT + (areaHeight - height) / 2;
             return sprite;
         })();
+        var scoreTitle = (function () {
+            var label = new Label();
+            label.text = "Score:";
+            label.font = "14px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+            label.x = SCORE_LEFT;
+            label.y = SCORE_TOP;
+            return label;
+        })();
+        var scoreNumber = (function () {
+            var label = new Label();
+            label.text = "0";
+            label.font = "bold 16px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+            label.x = SCORE_LEFT + SCORE_TITLE_WIDTH;
+            label.y = SCORE_TOP;
+            return label;
+        })();
         core.rootScene.addChild(background);
         core.rootScene.addChild(bear);
         core.rootScene.addChild(controller);
         core.rootScene.addChild(cursor);
+        core.rootScene.addChild(scoreTitle);
+        core.rootScene.addChild(scoreNumber);
 
         // 左右どちらのボタンが押されているかを管理します
         var INPUT_NONE = 0;
         var INPUT_LEFT = 1;
         var INPUT_RIGHT = 2;
         var currentInput = INPUT_NONE;
+
+        // ハートをキャッチするたびに増える得点です
+        var score = 0;
 
         /**
          * ボタン上をタッチまたはスワイプした際に発火する関数です。
@@ -135,16 +159,19 @@ function main() {
             sprite.image = core.assets["img/heart.png"];
             sprite.x = Math.random() * (STAGE_WIDTH - width);
             var topToBottom = (Math.random() < 0.5); // true: 上から下, false: 下から上
-            sprite.y = topToBottom ? - width : STAGE_HEIGHT;
+            sprite.y = topToBottom ? -width : STAGE_HEIGHT;
             sprite.frame = [0, 0, 0, 1, 1, 1];
             sprite.addEventListener(Event.ENTER_FRAME, function (e) {
                 sprite.y += topToBottom ? 3 : -3;
-                var out = (topToBottom && STAGE_HEIGHT < sprite.y) || (!topToBottom && sprite.y < - width);
+                var out = (topToBottom && STAGE_HEIGHT < sprite.y) || (!topToBottom && sprite.y < -width);
                 if (out) {
                     core.rootScene.removeChild(sprite);
                 }
+                // プレイヤーがハートをキャッチしたら得点を +1 します
                 if (sprite.within(bear, width / 2)) {
                     core.rootScene.removeChild(sprite);
+                    score++;
+                    scoreNumber.text = score;
                 }
             });
             return sprite;
