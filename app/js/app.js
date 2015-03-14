@@ -212,6 +212,11 @@ function main() {
                     gameover = true;
                     bear.frame = [3];
                     bear.removeEventListener(Event.ENTER_FRAME, moveBear);
+                    bear.tl.moveTo(bear.x, STAGE_HEIGHT + 64, 15, function (t, b, c, d) {
+                        var peak = 0.25;
+                        var x = (t / d) - peak;
+                        return 2 * (x * x * (c - b) + b - (peak * peak));
+                    });
                 }
             });
             return sprite;
