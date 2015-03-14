@@ -6,7 +6,7 @@ function main() {
 
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    core.preload("img/chara1.png", "img/cursor.png");
+    core.preload("img/chara1.png", "img/cursor.png", "img/heart.png");
     core.fps = 15;
     core.onload = function () {
         var background = (function () {
@@ -112,6 +112,30 @@ function main() {
             bear.x = newX;
         };
         bear.addEventListener(Event.ENTER_FRAME, moveBear);
+
+        var createHeart = function () {
+            var sprite = new Sprite(32, 32);
+            sprite.image = core.assets["img/heart.png"];
+            sprite.x = Math.random() * (STAGE_WIDTH - 32);
+            sprite.y = -32;
+            sprite.frame = [0, 0, 0, 1, 1, 1];
+            sprite.addEventListener(Event.ENTER_FRAME, function (e) {
+                sprite.y += 3;
+                if (STAGE_HEIGHT < sprite.y) {
+                    core.rootScene.removeChild(sprite);
+                }
+            });
+            return sprite;
+        };
+        var createObject = function (e) {
+            if (0.03 < Math.random()) {
+                return;
+            }
+
+            var heart = createHeart();
+            core.rootScene.addChild(heart);
+        };
+        core.rootScene.addEventListener(Event.ENTER_FRAME, createObject);
     };
     core.start();
 }
