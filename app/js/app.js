@@ -143,6 +143,9 @@ function main() {
                 if (out) {
                     core.rootScene.removeChild(sprite);
                 }
+                if (sprite.within(bear, width / 2)) {
+                    core.rootScene.removeChild(sprite);
+                }
             });
             return sprite;
         };
