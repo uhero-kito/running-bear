@@ -62,6 +62,7 @@ function main() {
          * 以下の処理を行います。
          * 
          * - ボタンのスプライトを変更し、押された感じを表現します
+         * - プレイヤーのモーションを走っている状態にします
          * 
          * @param {Event} e
          */
@@ -70,6 +71,10 @@ function main() {
             if (currentInput !== input) {
                 currentInput = input;
                 cursor.frame = [input];
+
+                var newScale = (currentInput === INPUT_RIGHT) ? 1 : -1;
+                bear.scaleX = newScale;
+                bear.frame = [0, 0, 1, 1, 0, 0, 2, 2];
             }
         };
 
@@ -78,12 +83,14 @@ function main() {
          * 以下の処理を行います。
          * 
          * - ボタンのスプライトをデフォルトに変更します
+         * - プレイヤーのモーションを止まっている状態にします
          * 
          * @param {Event} e
          */
         var stopCursor = function (e) {
             currentInput = INPUT_NONE;
             cursor.frame = [INPUT_NONE];
+            bear.frame = [0];
         };
         cursor.addEventListener(Event.TOUCH_START, inputCursor);
         cursor.addEventListener(Event.TOUCH_MOVE, inputCursor);
