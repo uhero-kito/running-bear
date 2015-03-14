@@ -95,6 +95,23 @@ function main() {
         cursor.addEventListener(Event.TOUCH_START, inputCursor);
         cursor.addEventListener(Event.TOUCH_MOVE, inputCursor);
         cursor.addEventListener(Event.TOUCH_END, stopCursor);
+
+        /**
+         * フレーム毎に実行される関数です。
+         * もしも右か左のボタンが押されていたら、プレイヤーの位置を移動させます。
+         * 
+         * @param {Event} e
+         */
+        var moveBear = function (e) {
+            if (currentInput === INPUT_NONE) {
+                return;
+            }
+
+            var dx = (currentInput === INPUT_LEFT) ? -5 : 5;
+            var newX = Math.min(Math.max(bear.x + dx, 0), STAGE_WIDTH - 32);
+            bear.x = newX;
+        };
+        bear.addEventListener(Event.ENTER_FRAME, moveBear);
     };
     core.start();
 }
