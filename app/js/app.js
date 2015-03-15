@@ -80,12 +80,14 @@ function main() {
             label.y = SCORE_TOP;
             return label;
         })();
-        core.rootScene.addChild(background);
-        core.rootScene.addChild(bear);
-        core.rootScene.addChild(controller);
-        core.rootScene.addChild(cursor);
-        core.rootScene.addChild(scoreTitle);
-        core.rootScene.addChild(scoreNumber);
+
+        var gameScene = new Scene();
+        gameScene.addChild(background);
+        gameScene.addChild(bear);
+        gameScene.addChild(controller);
+        gameScene.addChild(cursor);
+        gameScene.addChild(scoreTitle);
+        gameScene.addChild(scoreNumber);
 
         // 左右どちらのボタンが押されているかを管理します
         var INPUT_NONE = 0;
@@ -175,11 +177,11 @@ function main() {
                 sprite.y += topToBottom ? 3 : -3;
                 var out = (topToBottom && STAGE_HEIGHT < sprite.y) || (!topToBottom && sprite.y < -width);
                 if (out) {
-                    core.rootScene.removeChild(sprite);
+                    gameScene.removeChild(sprite);
                 }
                 // プレイヤーがハートをキャッチしたら得点を +1 します
                 if (sprite.within(bear, width / 2)) {
-                    core.rootScene.removeChild(sprite);
+                    gameScene.removeChild(sprite);
                     score++;
                     scoreNumber.text = score;
                 }
@@ -205,7 +207,7 @@ function main() {
                 sprite.y += topToBottom ? speed : - speed;
                 var out = (topToBottom && STAGE_HEIGHT < sprite.y) || (!topToBottom && sprite.y < - width);
                 if (out) {
-                    core.rootScene.removeChild(sprite);
+                    gameScene.removeChild(sprite);
                 }
                 // ボールがプレイヤーに当たったらゲームオーバーとします
                 if (sprite.within(bear, width)) {
@@ -217,7 +219,7 @@ function main() {
                         var x = (t / d) - peak;
                         return 2 * (x * x * (c - b) + b - (peak * peak));
                     });
-                    core.rootScene.removeEventListener(Event.ENTER_FRAME, createObject);
+                    gameScene.removeEventListener(Event.ENTER_FRAME, createObject);
                 }
             });
             return sprite;
@@ -230,13 +232,14 @@ function main() {
 
             if (0.03 < rand) {
                 var heart = createHeart();
-                core.rootScene.insertBefore(heart, controller);
+                gameScene.insertBefore(heart, controller);
             } else {
                 var ball = createBall();
-                core.rootScene.insertBefore(ball, controller);
+                gameScene.insertBefore(ball, controller);
             }
         };
-        core.rootScene.addEventListener(Event.ENTER_FRAME, createObject);
+        gameScene.addEventListener(Event.ENTER_FRAME, createObject);
+        core.replaceScene(gameScene);
     };
     core.start();
 }
