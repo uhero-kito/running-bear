@@ -198,6 +198,23 @@ function main() {
                 });
                 return sprite;
             };
+            var getBallSpeedFactor = function (age) {
+                var rand = Math.random();
+                if (age < 150) {
+                    return rand;
+                }
+                if (age < 450) {
+                    return rand * age / 150;
+                }
+
+                // 30 秒以降は緩急織り交ぜて出現させる
+                var sinRand = 0.5 * Math.sin(Math.PI * (rand - 0.5)) + 0.5;
+                if (age < 900) {
+                    return sinRand * 3;
+                }
+                // 60 秒以降はさらに振れ幅を大きく
+                return sinRand * 4;
+            };
             var createBall = function (e) {
                 var width = 16;
                 var height = 16;
@@ -205,7 +222,7 @@ function main() {
                 sprite.image = core.assets["img/icon1.png"];
                 sprite.x = Math.random() * (STAGE_WIDTH - width);
                 var topToBottom = (Math.random() < 0.5); // true: 上から下, false: 下から上
-                var speed = 2 + (Math.random() * 3);
+                var speed = 2 + getBallSpeedFactor(gameScene.age);
                 sprite.y = topToBottom ? -width : STAGE_HEIGHT;
                 var frameIndex = (Math.random() < 0.5) ? 0 : 1;
                 sprite.frame = [frameIndex];
