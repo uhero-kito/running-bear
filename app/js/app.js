@@ -109,6 +109,9 @@ function main() {
             // ボールがプレイヤーに当たった時に true になります
             var gameover = false;
 
+            // 画面上のオブジェクトの密度をコントロールするための変数です
+            var densityFactor = 0;
+
             /**
              * ボタン上をタッチまたはスワイプした際に発火する関数です。
              * 以下の処理を行います。
@@ -234,19 +237,79 @@ function main() {
                 });
                 return sprite;
             };
+            /**
+             * オブジェクトの出現確率の上昇率を返します。
+             * 時間が経てば経つほどオブジェクトが出現しやすくなります。
+             * 
+             * @param {Number} age
+             * @returns {Number}
+             */
+            var getHardness = function (age) {
+                if (age < 4) {
+                    return 0.25;
+                }
+                if (age < 150) {
+                    return 0.003;
+                }
+                if (age < 300) {
+                    return 0.005;
+                }
+                if (age < 450) {
+                    return 0.007;
+                }
+                if (age < 600) {
+                    return 0.01;
+                }
+                if (age < 750) {
+                    return 0.02;
+                }
+                if (age < 900) {
+                    return 0.03;
+                }
+                if (age < 1050) {
+                    return 0.05;
+                }
+                if (age < 1200) {
+                    return 0.07;
+                }
+                if (age < 1500) {
+                    return 0.1;
+                }
+                return 0.2;
+            };
+            /**
+             * ハートの出現率を返します。
+             * 時間が経てば経つほどボールの割合が増え、ハートの割合が減ります。
+             * @param {Number} age
+             * @returns {Number}
+             */
+            var getHeartFreq = function (age) {
+                if (age < 600) {
+                    return 0.5;
+                }
+                if (age < 900) {
+                    return 0.4;
+                }
+                if (age < 1200) {
+                    return 0.3;
+                }
+                return 0.2;
+            };
             var createObject = function (e) {
+                densityFactor = Math.min(0.5, densityFactor + getHardness(gameScene.age));
                 var rand = Math.random();
-                if (0.06 < rand) {
+                if (densityFactor < rand) {
                     return;
                 }
 
-                if (0.03 < rand) {
+                if (rand < densityFactor * getHeartFreq(gameScene.age)) {
                     var heart = createHeart();
                     gameScene.insertBefore(heart, controller);
                 } else {
                     var ball = createBall();
                     gameScene.insertBefore(ball, controller);
                 }
+                densityFactor = 0;
             };
             gameScene.addEventListener(Event.ENTER_FRAME, createObject);
             core.replaceScene(gameScene);
