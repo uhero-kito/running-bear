@@ -112,6 +112,9 @@ function main() {
             // 画面上のオブジェクトの密度をコントロールするための変数です
             var densityFactor = 0;
 
+            // 連続でハートが出現しないようにするためのフラグです
+            var heartAvailable = true;
+
             /**
              * 右または左が入力された際の処理です。
              * 以下の処理を行います。
@@ -340,6 +343,9 @@ function main() {
                     return 0.7;
                 }
                 if (score < 10) {
+                    return 0.6;
+                }
+                if (score < 15) {
                     return 0.5;
                 }
                 if (score < 20) {
@@ -357,12 +363,14 @@ function main() {
                     return;
                 }
 
-                if (rand < densityFactor * getHeartFreq(score)) {
+                if (heartAvailable && rand < densityFactor * getHeartFreq(score)) {
                     var heart = createHeart();
                     gameScene.insertBefore(heart, controller);
+                    heartAvailable = false;
                 } else {
                     var ball = createBall();
                     gameScene.insertBefore(ball, controller);
+                    heartAvailable = true;
                 }
                 densityFactor = 0;
             };
