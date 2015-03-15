@@ -217,6 +217,7 @@ function main() {
                         var x = (t / d) - peak;
                         return 2 * (x * x * (c - b) + b - (peak * peak));
                     });
+                    core.rootScene.removeEventListener(Event.ENTER_FRAME, createObject);
                 }
             });
             return sprite;
