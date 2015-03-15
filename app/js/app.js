@@ -227,6 +227,9 @@ function main() {
                             return 2 * (x * x * (c - b) + b - (peak * peak));
                         });
                         gameScene.removeEventListener(Event.ENTER_FRAME, createObject);
+                        gameScene.tl.cue({
+                            60: startNewGame
+                        });
                     }
                 });
                 return sprite;
