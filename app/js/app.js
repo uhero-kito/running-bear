@@ -225,22 +225,26 @@ function main() {
                 });
                 return sprite;
             };
-            var getBallSpeedFactor = function (age) {
+            var getBallSpeedFactor = function (score) {
                 var rand = Math.random();
-                if (age < 150) {
+                if (score < 5) {
                     return rand;
                 }
-                if (age < 450) {
-                    return rand * age / 150;
+                if (score < 15) {
+                    return rand * score / 5;
                 }
 
-                // 30 秒以降は緩急織り交ぜて出現させる
+                // 15 点以上は緩急織り交ぜて出現させる
                 var sinRand = 0.5 * Math.sin(Math.PI * (rand - 0.5)) + 0.5;
-                if (age < 900) {
+                if (score < 25) {
                     return sinRand * 3;
                 }
-                // 60 秒以降はさらに振れ幅を大きく
-                return sinRand * 4;
+                // 25 点以上はさらに振れ幅を大きく
+                if (score < 35) {
+                    return sinRand * 4;
+                }
+                // 35 点以上は豪速球も取り入れて完全に殺しに行く
+                return (Math.random() < 0.9) ? sinRand * 5 : 6;
             };
             var createBall = function (e) {
                 var width = 16;
@@ -249,7 +253,7 @@ function main() {
                 sprite.image = core.assets["img/icon1.png"];
                 sprite.x = Math.random() * (STAGE_WIDTH - width);
                 var topToBottom = (Math.random() < 0.5); // true: 上から下, false: 下から上
-                var speed = 2 + getBallSpeedFactor(gameScene.age);
+                var speed = 2 + getBallSpeedFactor(score);
                 sprite.y = topToBottom ? -width : STAGE_HEIGHT;
                 var frameIndex = (Math.random() < 0.5) ? 0 : 1;
                 sprite.frame = [frameIndex];
@@ -283,70 +287,77 @@ function main() {
             };
             /**
              * オブジェクトの出現確率の上昇率を返します。
-             * 時間が経てば経つほどオブジェクトが出現しやすくなります。
+             * 得点が増えるほどオブジェクトが出現しやすくなります。
+             * ゲーム開始直後については得点にかぎらずオブジェクトを出やすくします。
              * 
-             * @param {Number} age
+             * @param {Number} score, age
              * @returns {Number}
              */
-            var getHardness = function (age) {
+            var getHardness = function (score, age) {
                 if (age < 4) {
                     return 0.25;
                 }
-                if (age < 150) {
+                if (score < 4) {
                     return 0.003;
                 }
-                if (age < 300) {
+                if (score < 8) {
                     return 0.005;
                 }
-                if (age < 450) {
+                if (score < 12) {
                     return 0.007;
                 }
-                if (age < 600) {
+                if (score < 16) {
                     return 0.01;
                 }
-                if (age < 750) {
+                if (score < 20) {
                     return 0.02;
                 }
-                if (age < 900) {
+                if (score < 24) {
                     return 0.03;
                 }
-                if (age < 1050) {
+                if (score < 28) {
                     return 0.05;
                 }
-                if (age < 1200) {
+                if (score < 32) {
                     return 0.07;
                 }
-                if (age < 1500) {
+                if (score < 36) {
                     return 0.1;
+                }
+                if (score < 40) {
+                    return 0.15;
                 }
                 return 0.2;
             };
             /**
              * ハートの出現率を返します。
-             * 時間が経てば経つほどボールの割合が増え、ハートの割合が減ります。
-             * @param {Number} age
+             * 得点が増えるほどボールの割合が増え、ハートの割合が減ります。
+             * @param {Number} score
              * @returns {Number}
              */
-            var getHeartFreq = function (age) {
-                if (age < 600) {
+            var getHeartFreq = function (score) {
+                if (score < 5) {
+                    return 0.7;
+                }
+                if (score < 10) {
                     return 0.5;
                 }
-                if (age < 900) {
-                    return 0.4;
-                }
-                if (age < 1200) {
+                if (score < 20) {
                     return 0.3;
                 }
-                return 0.2;
+                if (score < 30) {
+                    return 0.2;
+                }
+                return 0.15;
             };
             var createObject = function (e) {
-                densityFactor = Math.min(0.5, densityFactor + getHardness(gameScene.age));
+                densityFactor = Math.min(0.5, densityFactor + getHardness(score, gameScene.age));
                 var rand = Math.random();
                 if (densityFactor < rand) {
                     return;
                 }
 
-                if (rand < densityFactor * getHeartFreq(gameScene.age)) {
+                if (rand < densityFactor * getHeartFreq(score)) {
                     var heart = createHeart();
                     gameScene.insertBefore(heart, controller);
                 } else {
