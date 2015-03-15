@@ -113,16 +113,15 @@ function main() {
             var densityFactor = 0;
 
             /**
-             * ボタン上をタッチまたはスワイプした際に発火する関数です。
+             * 右または左が入力された際の処理です。
              * 以下の処理を行います。
              * 
              * - ボタンのスプライトを変更し、押された感じを表現します
              * - プレイヤーのモーションを走っている状態にします
              * 
-             * @param {Event} e
+             * @param {Number} input INPUT_LEFT または INPUT_RIGHT
              */
-            var inputCursor = function (e) {
-                var input = (e.x < STAGE_WIDTH / 2) ? INPUT_LEFT : INPUT_RIGHT;
+            var receiveInput = function (input) {
                 if (currentInput !== input) {
                     currentInput = input;
                     cursor.frame = [input];
@@ -133,6 +132,16 @@ function main() {
                         bear.frame = [0, 0, 1, 1, 0, 0, 2, 2];
                     }
                 }
+            };
+            /**
+             * ボタン上をタッチまたはスワイプした際に発火する関数です。
+             * タッチされた座標から右か左かを判別して receiveInput を呼び出します
+             * 
+             * @param {Event} e
+             */
+            var inputCursor = function (e) {
+                var input = (e.x < STAGE_WIDTH / 2) ? INPUT_LEFT : INPUT_RIGHT;
+                receiveInput(input);
             };
             /**
              * ボタンから指を離した際に発火する関数です。
@@ -153,6 +162,24 @@ function main() {
             cursor.addEventListener(Event.TOUCH_START, inputCursor);
             cursor.addEventListener(Event.TOUCH_MOVE, inputCursor);
             cursor.addEventListener(Event.TOUCH_END, stopCursor);
+
+            // カーソルキーの右・左にも対応します
+            gameScene.addEventListener(Event.LEFT_BUTTON_DOWN, function () {
+                receiveInput(INPUT_LEFT);
+            });
+            gameScene.addEventListener(Event.LEFT_BUTTON_UP, function () {
+                if (currentInput === INPUT_LEFT) {
+                    stopCursor();
+                }
+            });
+            gameScene.addEventListener(Event.RIGHT_BUTTON_DOWN, function () {
+                receiveInput(INPUT_RIGHT);
+            });
+            gameScene.addEventListener(Event.RIGHT_BUTTON_UP, function () {
+                if (currentInput === INPUT_RIGHT) {
+                    stopCursor();
+                }
+            });
 
             /**
              * フレーム毎に実行される関数です。
