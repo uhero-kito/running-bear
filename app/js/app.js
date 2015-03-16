@@ -550,3 +550,5 @@ function main() {
     };
     core.start();
 }
+
+window.onload = main;
