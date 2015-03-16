@@ -13,6 +13,9 @@ function main() {
     var INPUT_LEFT = 1;
     var INPUT_RIGHT = 2;
 
+    var lastScore = 0;
+    var highScore = 0;
+
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png");
@@ -274,6 +277,8 @@ function main() {
                     // ボールがプレイヤーに当たったらゲームオーバーとします
                     if (sprite.within(bear, width)) {
                         gameover = true;
+                        lastScore = score;
+                        highScore = Math.max(score, highScore);
                         bear.frame = [3];
                         bear.removeEventListener(Event.ENTER_FRAME, moveBear);
                         bear.tl.moveTo(bear.x, STAGE_HEIGHT + 64, 15, function (t, b, c, d) {
@@ -458,12 +463,53 @@ function main() {
                 sprite.tl.delay(5).moveBy(0, DISPLAY_HEIGHT / 2 - 8, 15, enchant.Easing.BOUNCE_EASEOUT);
                 return sprite;
             })();
+            var highScoreTitle = (function () {
+                var label = new Label();
+                label.text = "High Score:";
+                label.textAlign = "right";
+                label.x = (-DISPLAY_WIDTH / 2);
+                label.y = (DISPLAY_HEIGHT / 2) + 32;
+                label.color = "#eeeeee";
+                label.font = "14px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+                return label;
+            })();
+            var highScoreNumber = (function () {
+                var label = new Label();
+                label.text = highScore;
+                label.x = (DISPLAY_WIDTH / 2);
+                label.y = (DISPLAY_HEIGHT / 2) + 32;
+                label.color = "#eeeeee";
+                label.font = "bold 16px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+                return label;
+            })();
+            var scoreTitle = (function () {
+                var label = new Label();
+                label.text = "Score:";
+                label.textAlign = "right";
+                label.x = (-DISPLAY_WIDTH / 2);
+                label.y = (DISPLAY_HEIGHT / 2) + 52;
+                label.color = "#eeeeee";
+                label.font = "14px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+                return label;
+            })();
+            var scoreNumber = (function () {
+                var label = new Label();
+                label.text = lastScore;
+                label.x = (DISPLAY_WIDTH / 2);
+                label.y = (DISPLAY_HEIGHT / 2) + 52;
+                label.color = "#eeeeee";
+                label.font = "bold 16px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+                return label;
+            })();
             scene.addChild(blackBackground);
             scene.addChild(gameover);
             scene.addChild(bear);
+            scene.addChild(scoreTitle);
+            scene.addChild(scoreNumber);
+            scene.addChild(highScoreTitle);
+            scene.addChild(highScoreNumber);
             core.replaceScene(scene);
         };
-
         core.replaceScene(titleScene);
     };
     core.start();
