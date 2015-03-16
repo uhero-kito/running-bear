@@ -18,7 +18,7 @@ function main() {
 
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png");
+    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png");
     core.fps = 15;
     core.onload = function () {
         var newBackground = function () {
@@ -501,6 +501,23 @@ function main() {
                 label.font = "bold 16px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
                 return label;
             })();
+            var retry = (function () {
+                var width = 180;
+                var height = 60;
+                var sprite = new Sprite(width, height);
+                sprite.image = core.assets["img/retry.png"];
+                sprite.frame = [0];
+                sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
+                sprite.y = (DISPLAY_HEIGHT / 2) + 90;
+                sprite.addEventListener(Event.TOUCH_START, function () {
+                    this.frame = [1];
+                });
+                sprite.addEventListener(Event.TOUCH_END, function () {
+                    this.frame = [0];
+                    startNewGame();
+                });
+                return sprite;
+            })();
             scene.addChild(blackBackground);
             scene.addChild(gameover);
             scene.addChild(bear);
@@ -508,6 +525,7 @@ function main() {
             scene.addChild(scoreNumber);
             scene.addChild(highScoreTitle);
             scene.addChild(highScoreNumber);
+            scene.addChild(retry);
             core.replaceScene(scene);
         };
         core.replaceScene(titleScene);
