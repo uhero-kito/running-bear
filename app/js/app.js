@@ -54,7 +54,7 @@ function main() {
             var sprite = new Sprite(areaWidth, areaHeight);
             sprite.image = (function () {
                 var surface = new Surface(areaWidth, areaHeight);
-                surface.context.fillStyle = "#ffffff";
+                surface.context.fillStyle = "#ffeecc";
                 surface.context.fillRect(0, 0, areaWidth, areaHeight);
                 return surface;
             })();
