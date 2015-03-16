@@ -15,7 +15,7 @@ function main() {
 
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png");
+    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png");
     core.fps = 15;
     core.onload = function () {
         var newBackground = function () {
@@ -283,7 +283,7 @@ function main() {
                         });
                         gameScene.removeEventListener(Event.ENTER_FRAME, createObject);
                         gameScene.tl.cue({
-                            60: startNewGame
+                            45: showGameover
                         });
                     }
                 });
@@ -378,19 +378,19 @@ function main() {
             gameScene.addEventListener(Event.ENTER_FRAME, createObject);
             core.replaceScene(gameScene);
         };
+        var blackBackground = (function () {
+            var sprite = new Sprite(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+            sprite.image = (function () {
+                var surface = new Surface(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                var context = surface.context;
+                context.fillStyle = "#000000";
+                context.fillRect(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                return surface;
+            })();
+            return sprite;
+        })();
         var titleScene = (function () {
             var scene = new Scene();
-            var background = (function () {
-                var sprite = new Sprite(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-                sprite.image = (function () {
-                    var surface = new Surface(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-                    var context = surface.context;
-                    context.fillStyle = "#000000";
-                    context.fillRect(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
-                    return surface;
-                })();
-                return sprite;
-            })();
             var title = (function () {
                 var width = DISPLAY_WIDTH;
                 var height = 60;
@@ -427,12 +427,42 @@ function main() {
                 });
                 return sprite;
             })();
-            scene.addChild(background);
+            scene.addChild(blackBackground);
             scene.addChild(title);
             scene.addChild(bear);
             scene.addChild(start);
             return scene;
         })();
+
+        /**
+         * 現在の Scene をゲームオーバー画面に切り替えます
+         */
+        var showGameover = function () {
+            var scene = new Scene();
+            var bear = (function () {
+                var width = 32;
+                var height = 32;
+                var sprite = new Sprite(width, height);
+                sprite.image = core.assets["img/chara1.png"];
+                sprite.frame = [3];
+                sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
+                sprite.y = (DISPLAY_HEIGHT / 2) - (height / 2);
+                return sprite;
+            })();
+            var gameover = (function () {
+                var width = DISPLAY_WIDTH;
+                var height = 60;
+                var sprite = new Sprite(width, height);
+                sprite.image = core.assets["img/gameover.png"];
+                sprite.y = -height;
+                sprite.tl.delay(5).moveBy(0, DISPLAY_HEIGHT / 2 - 8, 15, enchant.Easing.BOUNCE_EASEOUT);
+                return sprite;
+            })();
+            scene.addChild(blackBackground);
+            scene.addChild(gameover);
+            scene.addChild(bear);
+            core.replaceScene(scene);
+        };
 
         core.replaceScene(titleScene);
     };
