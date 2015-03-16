@@ -54,7 +54,7 @@ function main() {
             var sprite = new Sprite(areaWidth, areaHeight);
             sprite.image = (function () {
                 var surface = new Surface(areaWidth, areaHeight);
-                surface.context.fillStyle = "#ffffff";
+                surface.context.fillStyle = "#ffeecc";
                 surface.context.fillRect(0, 0, areaWidth, areaHeight);
                 return surface;
             })();
@@ -63,7 +63,7 @@ function main() {
             return sprite;
         };
         var newCursor = function () {
-            var width = 120;
+            var width = 240;
             var height = 120;
             var areaWidth = STAGE_WIDTH;
             var areaHeight = DISPLAY_HEIGHT - STAGE_HEIGHT;
@@ -116,8 +116,8 @@ function main() {
             // 画面上のオブジェクトの密度をコントロールするための変数です
             var densityFactor = 0;
 
-            // 連続でハートが出現しないようにするためのフラグです
-            var heartAvailable = true;
+            // ハートの出現頻度をコントロールするための変数です
+            var heartFactor = 0;
 
             /**
              * 右または左が入力された際の処理です。
@@ -306,37 +306,40 @@ function main() {
                 if (age < 4) {
                     return 0.25;
                 }
-                if (score < 4) {
-                    return 0.003;
-                }
-                if (score < 8) {
+                if (score < 3) {
                     return 0.005;
                 }
-                if (score < 12) {
-                    return 0.007;
-                }
-                if (score < 16) {
+                if (score < 6) {
                     return 0.01;
                 }
-                if (score < 20) {
+                if (score < 9) {
+                    return 0.015;
+                }
+                if (score < 12) {
                     return 0.02;
                 }
-                if (score < 24) {
+                if (score < 16) {
                     return 0.03;
                 }
-                if (score < 28) {
+                if (score < 20) {
+                    return 0.04;
+                }
+                if (score < 24) {
                     return 0.05;
                 }
-                if (score < 32) {
+                if (score < 28) {
                     return 0.07;
                 }
-                if (score < 36) {
+                if (score < 32) {
                     return 0.1;
                 }
-                if (score < 40) {
+                if (score < 36) {
                     return 0.15;
                 }
-                return 0.2;
+                if (score < 40) {
+                    return 0.2;
+                }
+                return 0.3;
             };
             /**
              * ハートの出現率を返します。
@@ -344,23 +347,38 @@ function main() {
              * @param {Number} score
              * @returns {Number}
              */
-            var getHeartFreq = function (score) {
-                if (score < 5) {
+            var getHeartFactorIncrease = function (score) {
+                if (score < 2) {
                     return 0.7;
                 }
-                if (score < 10) {
-                    return 0.6;
-                }
-                if (score < 15) {
+                if (score < 4) {
                     return 0.5;
                 }
-                if (score < 20) {
+                if (score < 6) {
+                    return 0.4;
+                }
+                if (score < 8) {
                     return 0.3;
                 }
-                if (score < 30) {
+                if (score < 12) {
                     return 0.2;
                 }
-                return 0.15;
+                if (score < 14) {
+                    return 0.15;
+                }
+                if (score < 16) {
+                    return 0.1;
+                }
+                if (score < 20) {
+                    return 0.07;
+                }
+                if (score < 24) {
+                    return 0.05;
+                }
+                if (score < 28) {
+                    return 0.03;
+                }
+                return 0.02;
             };
             var createObject = function (e) {
                 densityFactor = Math.min(0.5, densityFactor + getHardness(score, gameScene.age));
@@ -369,14 +387,14 @@ function main() {
                     return;
                 }
 
-                if (heartAvailable && rand < densityFactor * getHeartFreq(score)) {
+                heartFactor = Math.min(0.9, heartFactor + getHeartFactorIncrease(score));
+                if (Math.random() < heartFactor) {
                     var heart = createHeart();
                     gameScene.insertBefore(heart, controller);
-                    heartAvailable = false;
+                    heartFactor = 0;
                 } else {
                     var ball = createBall();
                     gameScene.insertBefore(ball, controller);
-                    heartAvailable = true;
                 }
                 densityFactor = 0;
             };
