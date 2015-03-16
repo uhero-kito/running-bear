@@ -63,7 +63,7 @@ function main() {
             return sprite;
         };
         var newCursor = function () {
-            var width = 120;
+            var width = 240;
             var height = 120;
             var areaWidth = STAGE_WIDTH;
             var areaHeight = DISPLAY_HEIGHT - STAGE_HEIGHT;
