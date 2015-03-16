@@ -306,37 +306,40 @@ function main() {
                 if (age < 4) {
                     return 0.25;
                 }
-                if (score < 4) {
-                    return 0.003;
-                }
-                if (score < 8) {
+                if (score < 3) {
                     return 0.005;
                 }
-                if (score < 12) {
-                    return 0.007;
-                }
-                if (score < 16) {
+                if (score < 6) {
                     return 0.01;
                 }
-                if (score < 20) {
+                if (score < 9) {
+                    return 0.015;
+                }
+                if (score < 12) {
                     return 0.02;
                 }
-                if (score < 24) {
+                if (score < 16) {
                     return 0.03;
                 }
-                if (score < 28) {
+                if (score < 20) {
+                    return 0.04;
+                }
+                if (score < 24) {
                     return 0.05;
                 }
-                if (score < 32) {
+                if (score < 28) {
                     return 0.07;
                 }
-                if (score < 36) {
+                if (score < 32) {
                     return 0.1;
                 }
-                if (score < 40) {
+                if (score < 36) {
                     return 0.15;
                 }
-                return 0.2;
+                if (score < 40) {
+                    return 0.2;
+                }
+                return 0.3;
             };
             /**
              * ハートの出現率を返します。
