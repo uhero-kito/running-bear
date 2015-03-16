@@ -1,8 +1,8 @@
 function main() {
     var DISPLAY_WIDTH = 320;
-    var DISPLAY_HEIGHT = 450;
+    var DISPLAY_HEIGHT = 512;
     var STAGE_WIDTH = DISPLAY_WIDTH;
-    var STAGE_HEIGHT = DISPLAY_WIDTH;
+    var STAGE_HEIGHT = 360;
     var SCORE_LEFT = 16;
     var SCORE_TOP = 16;
     var SCORE_TITLE_WIDTH = 48;
@@ -419,7 +419,7 @@ function main() {
                 var height = 60;
                 var sprite = new Sprite(width, height);
                 sprite.image = core.assets["img/title-logo.png"];
-                sprite.x = 0;
+                sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
                 sprite.y = TITLE_TOP;
                 return sprite;
             })();
@@ -477,6 +477,7 @@ function main() {
                 var height = 60;
                 var sprite = new Sprite(width, height);
                 sprite.image = core.assets["img/gameover.png"];
+                sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
                 sprite.y = -2 * height;
                 sprite.tl.moveBy(0, DISPLAY_HEIGHT / 2 + height / 2, 24, enchant.Easing.BOUNCE_EASEOUT);
                 return sprite;
