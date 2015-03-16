@@ -1,0 +1,17 @@
+{
+    "default_locale" : "ja",
+    "description"    : "ボールを避けながらハートを集めよう！ enchant.js を使った Firefox OS アプリのテストです。",
+    "developer" : {
+        "name" : "takayuki, KITO",
+        "url"  : "https://github.com/uhero-kito"
+    },
+    "icons" : {
+        "64": "/img/icon-064.png",
+        "128": "/img/icon-128.png"
+    },
+    "launch_path": "/index.html",
+    "name": "Running Bear",
+    "type": "web",
+    "version": "1.0.0",
+    "csp": "'default-src' *;'script-src' 'self';'object-src' 'none';'frame-src' 'self';'style-src' 'unsafe-inline' 'self';'connect-src'"
+}
