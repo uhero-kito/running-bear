@@ -459,8 +459,8 @@ function main() {
                 var height = 60;
                 var sprite = new Sprite(width, height);
                 sprite.image = core.assets["img/gameover.png"];
-                sprite.y = -height;
-                sprite.tl.delay(5).moveBy(0, DISPLAY_HEIGHT / 2 - 8, 15, enchant.Easing.BOUNCE_EASEOUT);
+                sprite.y = -2 * height;
+                sprite.tl.moveBy(0, DISPLAY_HEIGHT / 2 + height / 2, 24, enchant.Easing.BOUNCE_EASEOUT);
                 return sprite;
             })();
             var highScoreTitle = (function () {
