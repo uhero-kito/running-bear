@@ -419,7 +419,7 @@ function main() {
                 var height = 60;
                 var sprite = new Sprite(width, height);
                 sprite.image = core.assets["img/title-logo.png"];
-                sprite.x = 0;
+                sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
                 sprite.y = TITLE_TOP;
                 return sprite;
             })();
@@ -477,6 +477,7 @@ function main() {
                 var height = 60;
                 var sprite = new Sprite(width, height);
                 sprite.image = core.assets["img/gameover.png"];
+                sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
                 sprite.y = -2 * height;
                 sprite.tl.moveBy(0, DISPLAY_HEIGHT / 2 + height / 2, 24, enchant.Easing.BOUNCE_EASEOUT);
                 return sprite;

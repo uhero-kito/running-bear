@@ -1,10 +1,11 @@
 body {
-    margin  : 0;
-    padding : 0;
-    background-color : #000;
-}
-#enchant-stage {
+    position : absolute;
     width : 320px;
     height : 450px;
-    margin : 0;
+    top : 0;
+    left : 0;
+    right : 0;
+    bottom : 0;
+    margin  : auto;
+    background-color : #000;
 }
