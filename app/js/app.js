@@ -6,6 +6,7 @@ function main() {
     var SCORE_LEFT = 16;
     var SCORE_TOP = 16;
     var SCORE_TITLE_WIDTH = 48;
+    var TITLE_TOP = 120;
 
     // 左右どちらのボタンが押されているかを管理します
     var INPUT_NONE = 0;
@@ -14,7 +15,7 @@ function main() {
 
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png");
+    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png");
     core.fps = 15;
     core.onload = function () {
         var newBackground = function () {
@@ -377,8 +378,63 @@ function main() {
             gameScene.addEventListener(Event.ENTER_FRAME, createObject);
             core.replaceScene(gameScene);
         };
+        var titleScene = (function () {
+            var scene = new Scene();
+            var background = (function () {
+                var sprite = new Sprite(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                sprite.image = (function () {
+                    var surface = new Surface(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                    var context = surface.context;
+                    context.fillStyle = "#000000";
+                    context.fillRect(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                    return surface;
+                })();
+                return sprite;
+            })();
+            var title = (function () {
+                var width = DISPLAY_WIDTH;
+                var height = 60;
+                var sprite = new Sprite(width, height);
+                sprite.image = core.assets["img/title-logo.png"];
+                sprite.x = 0;
+                sprite.y = TITLE_TOP;
+                return sprite;
+            })();
+            var bear = (function () {
+                var width = 32;
+                var height = 32;
+                var sprite = new Sprite(width, height);
+                sprite.image = core.assets["img/chara1.png"];
+                sprite.frame = [0, 1, 1, 0, 2, 2];
+                sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
+                sprite.y = TITLE_TOP + 70;
+                return sprite;
+            })();
+            var start = (function () {
+                var width = 180;
+                var height = 60;
+                var sprite = new Sprite(width, height);
+                sprite.image = core.assets["img/start.png"];
+                sprite.frame = [0];
+                sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
+                sprite.y = TITLE_TOP + 150;
+                sprite.addEventListener(Event.TOUCH_START, function () {
+                    this.frame = [1];
+                });
+                sprite.addEventListener(Event.TOUCH_END, function () {
+                    this.frame = [0];
+                    startNewGame();
+                });
+                return sprite;
+            })();
+            scene.addChild(background);
+            scene.addChild(title);
+            scene.addChild(bear);
+            scene.addChild(start);
+            return scene;
+        })();
 
-        startNewGame();
+        core.replaceScene(titleScene);
     };
     core.start();
 }
