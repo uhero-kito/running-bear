@@ -1,8 +1,8 @@
 function main() {
     var DISPLAY_WIDTH = 320;
-    var DISPLAY_HEIGHT = 450;
+    var DISPLAY_HEIGHT = 512;
     var STAGE_WIDTH = DISPLAY_WIDTH;
-    var STAGE_HEIGHT = DISPLAY_WIDTH;
+    var STAGE_HEIGHT = 360;
     var SCORE_LEFT = 16;
     var SCORE_TOP = 16;
     var SCORE_TITLE_WIDTH = 48;
