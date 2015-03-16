@@ -13,9 +13,12 @@ function main() {
     var INPUT_LEFT = 1;
     var INPUT_RIGHT = 2;
 
+    var lastScore = 0;
+    var highScore = 0;
+
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png");
+    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png");
     core.fps = 15;
     core.onload = function () {
         var newBackground = function () {
@@ -274,6 +277,8 @@ function main() {
                     // ボールがプレイヤーに当たったらゲームオーバーとします
                     if (sprite.within(bear, width)) {
                         gameover = true;
+                        lastScore = score;
+                        highScore = Math.max(score, highScore);
                         bear.frame = [3];
                         bear.removeEventListener(Event.ENTER_FRAME, moveBear);
                         bear.tl.moveTo(bear.x, STAGE_HEIGHT + 64, 15, function (t, b, c, d) {
@@ -283,7 +288,7 @@ function main() {
                         });
                         gameScene.removeEventListener(Event.ENTER_FRAME, createObject);
                         gameScene.tl.cue({
-                            60: startNewGame
+                            45: showGameover
                         });
                     }
                 });
@@ -378,19 +383,19 @@ function main() {
             gameScene.addEventListener(Event.ENTER_FRAME, createObject);
             core.replaceScene(gameScene);
         };
+        var blackBackground = (function () {
+            var sprite = new Sprite(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+            sprite.image = (function () {
+                var surface = new Surface(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                var context = surface.context;
+                context.fillStyle = "#000000";
+                context.fillRect(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                return surface;
+            })();
+            return sprite;
+        })();
         var titleScene = (function () {
             var scene = new Scene();
-            var background = (function () {
-                var sprite = new Sprite(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-                sprite.image = (function () {
-                    var surface = new Surface(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-                    var context = surface.context;
-                    context.fillStyle = "#000000";
-                    context.fillRect(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
-                    return surface;
-                })();
-                return sprite;
-            })();
             var title = (function () {
                 var width = DISPLAY_WIDTH;
                 var height = 60;
@@ -427,13 +432,102 @@ function main() {
                 });
                 return sprite;
             })();
-            scene.addChild(background);
+            scene.addChild(blackBackground);
             scene.addChild(title);
             scene.addChild(bear);
             scene.addChild(start);
             return scene;
         })();
 
+        /**
+         * 現在の Scene をゲームオーバー画面に切り替えます
+         */
+        var showGameover = function () {
+            var scene = new Scene();
+            var bear = (function () {
+                var width = 32;
+                var height = 32;
+                var sprite = new Sprite(width, height);
+                sprite.image = core.assets["img/chara1.png"];
+                sprite.frame = [3];
+                sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
+                sprite.y = (DISPLAY_HEIGHT / 2) - (height / 2);
+                return sprite;
+            })();
+            var gameover = (function () {
+                var width = DISPLAY_WIDTH;
+                var height = 60;
+                var sprite = new Sprite(width, height);
+                sprite.image = core.assets["img/gameover.png"];
+                sprite.y = -2 * height;
+                sprite.tl.moveBy(0, DISPLAY_HEIGHT / 2 + height / 2, 24, enchant.Easing.BOUNCE_EASEOUT);
+                return sprite;
+            })();
+            var highScoreTitle = (function () {
+                var label = new Label();
+                label.text = "High Score:";
+                label.textAlign = "right";
+                label.x = (-DISPLAY_WIDTH / 2);
+                label.y = (DISPLAY_HEIGHT / 2) + 32;
+                label.color = "#eeeeee";
+                label.font = "14px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+                return label;
+            })();
+            var highScoreNumber = (function () {
+                var label = new Label();
+                label.text = highScore;
+                label.x = (DISPLAY_WIDTH / 2);
+                label.y = (DISPLAY_HEIGHT / 2) + 32;
+                label.color = "#eeeeee";
+                label.font = "bold 16px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+                return label;
+            })();
+            var scoreTitle = (function () {
+                var label = new Label();
+                label.text = "Score:";
+                label.textAlign = "right";
+                label.x = (-DISPLAY_WIDTH / 2);
+                label.y = (DISPLAY_HEIGHT / 2) + 52;
+                label.color = "#eeeeee";
+                label.font = "14px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+                return label;
+            })();
+            var scoreNumber = (function () {
+                var label = new Label();
+                label.text = lastScore;
+                label.x = (DISPLAY_WIDTH / 2);
+                label.y = (DISPLAY_HEIGHT / 2) + 52;
+                label.color = "#eeeeee";
+                label.font = "bold 16px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+                return label;
+            })();
+            var retry = (function () {
+                var width = 180;
+                var height = 60;
+                var sprite = new Sprite(width, height);
+                sprite.image = core.assets["img/retry.png"];
+                sprite.frame = [0];
+                sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
+                sprite.y = (DISPLAY_HEIGHT / 2) + 90;
+                sprite.addEventListener(Event.TOUCH_START, function () {
+                    this.frame = [1];
+                });
+                sprite.addEventListener(Event.TOUCH_END, function () {
+                    this.frame = [0];
+                    startNewGame();
+                });
+                return sprite;
+            })();
+            scene.addChild(blackBackground);
+            scene.addChild(gameover);
+            scene.addChild(bear);
+            scene.addChild(scoreTitle);
+            scene.addChild(scoreNumber);
+            scene.addChild(highScoreTitle);
+            scene.addChild(highScoreNumber);
+            scene.addChild(retry);
+            core.replaceScene(scene);
+        };
         core.replaceScene(titleScene);
     };
     core.start();
