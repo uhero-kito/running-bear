@@ -120,15 +120,30 @@ function main() {
             label.y = SCORE_TOP;
             return label;
         };
-        var newVolumeControl = function () {
+        /**
+         * 右下に設置する音声の ON/OFF コントロールボタンを生成します。
+         * @param {Boolean} isBlack 黒アイコンの場合は true, 白アイコンの場合は false
+         * @returns {Sprite}
+         */
+        var newVolumeControl = function (isBlack) {
             var width = 32;
             var height = 32;
             var sprite = new Sprite(width, height);
-            var index = volume ? 0 : 1;
+            var index = (isBlack ? 0 : 2) + (volume ? 0 : 1); // 黒 ON: 0, 黒 OFF: 1, 白 ON: 2, 白 OFF: 3
             sprite.image = core.assets["img/volume.png"];
             sprite.frame = [index];
-            sprite.x = DISPLAY_WIDTH - width;
-            sprite.y = DISPLAY_HEIGHT - height;
+            sprite.x = DISPLAY_WIDTH - width - 16;
+            sprite.y = DISPLAY_HEIGHT - height - 16;
+            sprite.addEventListener(Event.TOUCH_END, function () {
+                volume = volume ? false : true; // toggle
+                if (playingBGM) {
+                    var bgm = core.assets["sound/" + playingBGM];
+                    var vol = volume ? 1 : 0;
+                    bgm.volume = vol;
+                }
+                var index = (isBlack ? 0 : 2) + (volume ? 0 : 1);
+                sprite.frame = [index];
+            });
             return sprite;
         };
 
@@ -140,7 +155,7 @@ function main() {
             var cursor = newCursor();
             var scoreTitle = newScoreTitle();
             var scoreNumber = newScoreNumber();
-            var volume = newVolumeControl();
+            var volume = newVolumeControl(true);
             gameScene.addChild(background);
             gameScene.addChild(bear);
             gameScene.addChild(controller);
