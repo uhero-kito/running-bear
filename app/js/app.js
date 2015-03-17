@@ -126,14 +126,14 @@ function main() {
          * @returns {Sprite}
          */
         var newVolumeControl = function (isBlack) {
-            var width = 32;
-            var height = 32;
+            var width = 64;
+            var height = 64;
             var sprite = new Sprite(width, height);
             var index = (isBlack ? 0 : 2) + (volume ? 0 : 1); // 黒 ON: 0, 黒 OFF: 1, 白 ON: 2, 白 OFF: 3
             sprite.image = core.assets["img/volume.png"];
             sprite.frame = [index];
-            sprite.x = DISPLAY_WIDTH - width - 16;
-            sprite.y = DISPLAY_HEIGHT - height - 16;
+            sprite.x = DISPLAY_WIDTH - width;
+            sprite.y = DISPLAY_HEIGHT - height;
             sprite.addEventListener(Event.TOUCH_END, function () {
                 volume = volume ? false : true; // toggle
                 if (playingBGM) {
