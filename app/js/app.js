@@ -18,7 +18,8 @@ function main() {
 
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png");
+    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png",
+            "sound/main.mp3", "sound/hit.wav", "sound/get.wav");
     core.fps = 15;
     core.onload = function () {
         var newBackground = function () {
@@ -228,6 +229,7 @@ function main() {
                         gameScene.removeChild(sprite);
                         score++;
                         scoreNumber.text = score;
+                        core.assets["sound/get.wav"].play(true); // 引数に true を指定しないと Chrome でエラーになる
                     }
                 });
                 return sprite;
@@ -290,6 +292,8 @@ function main() {
                         gameScene.tl.cue({
                             45: showGameover
                         });
+                        core.assets["sound/main.mp3"].stop();
+                        core.assets["sound/hit.wav"].play(true); // 引数に true を指定しないと Chrome でエラーになる
                     }
                 });
                 return sprite;
@@ -400,6 +404,8 @@ function main() {
             };
             gameScene.addEventListener(Event.ENTER_FRAME, createObject);
             core.replaceScene(gameScene);
+            core.assets["sound/main.mp3"].play();
+            core.assets["sound/main.mp3"].src.loop = true;
         };
         var blackBackground = (function () {
             var sprite = new Sprite(DISPLAY_WIDTH, DISPLAY_HEIGHT);
