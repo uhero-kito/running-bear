@@ -15,10 +15,11 @@ function main() {
 
     var lastScore = 0;
     var highScore = 0;
+    var volume = false;
 
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png"
+    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png", "img/volume.png"
             ,"sound/main.mp3", "sound/hit.wav", "sound/get.wav", "sound/start.wav");
     core.fps = 15;
     core.onload = function () {
@@ -90,6 +91,17 @@ function main() {
             label.y = SCORE_TOP;
             return label;
         };
+        var newVolumeControl = function () {
+            var width = 32;
+            var height = 32;
+            var sprite = new Sprite(width, height);
+            var index = volume ? 0 : 1;
+            sprite.image = core.assets["img/volume.png"];
+            sprite.frame = [index];
+            sprite.x = DISPLAY_WIDTH - width;
+            sprite.y = DISPLAY_HEIGHT - height;
+            return sprite;
+        };
 
         var startNewGame = function () {
             var gameScene = new Scene();
@@ -99,10 +111,12 @@ function main() {
             var cursor = newCursor();
             var scoreTitle = newScoreTitle();
             var scoreNumber = newScoreNumber();
+            var volume = newVolumeControl();
             gameScene.addChild(background);
             gameScene.addChild(bear);
             gameScene.addChild(controller);
             gameScene.addChild(cursor);
+            gameScene.addChild(volume);
             gameScene.addChild(scoreTitle);
             gameScene.addChild(scoreNumber);
 
