@@ -15,12 +15,43 @@ function main() {
 
     var lastScore = 0;
     var highScore = 0;
+    var volume = false;
+    var playingBGM = null;
 
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png");
+    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png", "img/volume.png"
+            ,"sound/main.mp3", "sound/hit.wav", "sound/get.wav", "sound/start.wav");
     core.fps = 15;
     core.onload = function () {
+        var playSE = function (filename) {
+            if (!volume) {
+                return;
+            }
+            var se = core.assets["sound/" + filename];
+            se.clone().play();
+        };
+        var playBGM = function (filename) {
+            if (playingBGM) {
+                core.assets["sound/" + playingBGM].stop();
+            }
+            var bgm = core.assets["sound/" + filename];
+            var vol = volume ? 1 : 0;
+            bgm.play();
+            bgm.volume = vol;
+            bgm.src.loop = true;
+            playingBGM = filename;
+        };
+        var stopBGM = function () {
+            if (!playingBGM) {
+                return;
+            }
+            var bgm = core.assets["sound/" + playingBGM];
+            bgm.stop();
+            bgm.src.loop = false;
+            playingBGM = null;
+        };
+
         var newBackground = function () {
             var sprite = new Sprite(STAGE_WIDTH, STAGE_HEIGHT);
             sprite.image = (function () {
@@ -89,6 +120,32 @@ function main() {
             label.y = SCORE_TOP;
             return label;
         };
+        /**
+         * 右下に設置する音声の ON/OFF コントロールボタンを生成します。
+         * @param {Boolean} isBlack 黒アイコンの場合は true, 白アイコンの場合は false
+         * @returns {Sprite}
+         */
+        var newVolumeControl = function (isBlack) {
+            var width = 64;
+            var height = 64;
+            var sprite = new Sprite(width, height);
+            var index = (isBlack ? 0 : 2) + (volume ? 0 : 1); // 黒 ON: 0, 黒 OFF: 1, 白 ON: 2, 白 OFF: 3
+            sprite.image = core.assets["img/volume.png"];
+            sprite.frame = [index];
+            sprite.x = DISPLAY_WIDTH - width;
+            sprite.y = DISPLAY_HEIGHT - height;
+            sprite.addEventListener(Event.TOUCH_END, function () {
+                volume = volume ? false : true; // toggle
+                if (playingBGM) {
+                    var bgm = core.assets["sound/" + playingBGM];
+                    var vol = volume ? 1 : 0;
+                    bgm.volume = vol;
+                }
+                var index = (isBlack ? 0 : 2) + (volume ? 0 : 1);
+                sprite.frame = [index];
+            });
+            return sprite;
+        };
 
         var startNewGame = function () {
             var gameScene = new Scene();
@@ -98,10 +155,12 @@ function main() {
             var cursor = newCursor();
             var scoreTitle = newScoreTitle();
             var scoreNumber = newScoreNumber();
+            var volume = newVolumeControl(true);
             gameScene.addChild(background);
             gameScene.addChild(bear);
             gameScene.addChild(controller);
             gameScene.addChild(cursor);
+            gameScene.addChild(volume);
             gameScene.addChild(scoreTitle);
             gameScene.addChild(scoreNumber);
 
@@ -228,6 +287,7 @@ function main() {
                         gameScene.removeChild(sprite);
                         score++;
                         scoreNumber.text = score;
+                        playSE("get.wav");
                     }
                 });
                 return sprite;
@@ -290,6 +350,8 @@ function main() {
                         gameScene.tl.cue({
                             45: showGameover
                         });
+                        stopBGM();
+                        playSE("hit.wav");
                     }
                 });
                 return sprite;
@@ -400,6 +462,7 @@ function main() {
             };
             gameScene.addEventListener(Event.ENTER_FRAME, createObject);
             core.replaceScene(gameScene);
+            playBGM("main.mp3");
         };
         var blackBackground = (function () {
             var sprite = new Sprite(DISPLAY_WIDTH, DISPLAY_HEIGHT);
@@ -446,7 +509,9 @@ function main() {
                 });
                 sprite.addEventListener(Event.TOUCH_END, function () {
                     this.frame = [0];
-                    startNewGame();
+                    playSE("start.wav");
+                    bear.frame = [1];
+                    scene.tl.cue({ 10 : startNewGame});
                 });
                 return sprite;
             })();
@@ -454,6 +519,7 @@ function main() {
             scene.addChild(title);
             scene.addChild(bear);
             scene.addChild(start);
+            scene.addChild(newVolumeControl(false));
             return scene;
         })();
 
@@ -533,7 +599,8 @@ function main() {
                 });
                 sprite.addEventListener(Event.TOUCH_END, function () {
                     this.frame = [0];
-                    startNewGame();
+                    playSE("start.wav");
+                    scene.tl.cue({ 10 : startNewGame});
                 });
                 return sprite;
             })();
@@ -545,6 +612,7 @@ function main() {
             scene.addChild(highScoreTitle);
             scene.addChild(highScoreNumber);
             scene.addChild(retry);
+            scene.addChild(newVolumeControl(false));
             core.replaceScene(scene);
         };
         core.replaceScene(titleScene);
