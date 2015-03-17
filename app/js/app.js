@@ -519,6 +519,7 @@ function main() {
             scene.addChild(title);
             scene.addChild(bear);
             scene.addChild(start);
+            scene.addChild(newVolumeControl(false));
             return scene;
         })();
 
@@ -611,6 +612,7 @@ function main() {
             scene.addChild(highScoreTitle);
             scene.addChild(highScoreNumber);
             scene.addChild(retry);
+            scene.addChild(newVolumeControl(false));
             core.replaceScene(scene);
         };
         core.replaceScene(titleScene);
