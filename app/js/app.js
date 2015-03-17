@@ -18,8 +18,8 @@ function main() {
 
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png",
-            "sound/main.mp3", "sound/hit.wav", "sound/get.wav");
+    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png"
+            ,"sound/main.mp3", "sound/hit.wav", "sound/get.wav", "sound/start.wav");
     core.fps = 15;
     core.onload = function () {
         var newBackground = function () {
@@ -452,7 +452,9 @@ function main() {
                 });
                 sprite.addEventListener(Event.TOUCH_END, function () {
                     this.frame = [0];
-                    startNewGame();
+                    core.assets["sound/start.wav"].play(true);
+                    bear.frame = [1];
+                    scene.tl.cue({ 10 : startNewGame});
                 });
                 return sprite;
             })();
@@ -539,7 +541,8 @@ function main() {
                 });
                 sprite.addEventListener(Event.TOUCH_END, function () {
                     this.frame = [0];
-                    startNewGame();
+                    core.assets["sound/start.wav"].play(true);
+                    scene.tl.cue({ 10 : startNewGame});
                 });
                 return sprite;
             })();
