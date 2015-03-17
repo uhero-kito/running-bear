@@ -16,6 +16,7 @@ function main() {
     var lastScore = 0;
     var highScore = 0;
     var volume = false;
+    var playingBGM = null;
 
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
@@ -29,6 +30,26 @@ function main() {
             }
             var se = core.assets["sound/" + filename];
             se.clone().play();
+        };
+        var playBGM = function (filename) {
+            if (playingBGM) {
+                core.assets["sound/" + playingBGM].stop();
+            }
+            var bgm = core.assets["sound/" + filename];
+            var vol = volume ? 1 : 0;
+            bgm.play();
+            bgm.volume = vol;
+            bgm.src.loop = true;
+            playingBGM = filename;
+        };
+        var stopBGM = function () {
+            if (!playingBGM) {
+                return;
+            }
+            var bgm = core.assets["sound/" + playingBGM];
+            bgm.stop();
+            bgm.src.loop = false;
+            playingBGM = null;
         };
 
         var newBackground = function () {
@@ -314,7 +335,7 @@ function main() {
                         gameScene.tl.cue({
                             45: showGameover
                         });
-                        core.assets["sound/main.mp3"].stop();
+                        stopBGM();
                         playSE("hit.wav");
                     }
                 });
@@ -426,8 +447,7 @@ function main() {
             };
             gameScene.addEventListener(Event.ENTER_FRAME, createObject);
             core.replaceScene(gameScene);
-            core.assets["sound/main.mp3"].play();
-            core.assets["sound/main.mp3"].src.loop = true;
+            playBGM("main.mp3");
         };
         var blackBackground = (function () {
             var sprite = new Sprite(DISPLAY_WIDTH, DISPLAY_HEIGHT);
