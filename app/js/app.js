@@ -23,6 +23,14 @@ function main() {
             ,"sound/main.mp3", "sound/hit.wav", "sound/get.wav", "sound/start.wav");
     core.fps = 15;
     core.onload = function () {
+        var playSE = function (filename) {
+            if (!volume) {
+                return;
+            }
+            var se = core.assets["sound/" + filename];
+            se.clone().play();
+        };
+
         var newBackground = function () {
             var sprite = new Sprite(STAGE_WIDTH, STAGE_HEIGHT);
             sprite.image = (function () {
@@ -243,7 +251,7 @@ function main() {
                         gameScene.removeChild(sprite);
                         score++;
                         scoreNumber.text = score;
-                        core.assets["sound/get.wav"].play(true); // 引数に true を指定しないと Chrome でエラーになる
+                        playSE("get.wav");
                     }
                 });
                 return sprite;
@@ -307,7 +315,7 @@ function main() {
                             45: showGameover
                         });
                         core.assets["sound/main.mp3"].stop();
-                        core.assets["sound/hit.wav"].play(true); // 引数に true を指定しないと Chrome でエラーになる
+                        playSE("hit.wav");
                     }
                 });
                 return sprite;
@@ -466,7 +474,7 @@ function main() {
                 });
                 sprite.addEventListener(Event.TOUCH_END, function () {
                     this.frame = [0];
-                    core.assets["sound/start.wav"].play(true);
+                    playSE("start.wav");
                     bear.frame = [1];
                     scene.tl.cue({ 10 : startNewGame});
                 });
@@ -555,7 +563,7 @@ function main() {
                 });
                 sprite.addEventListener(Event.TOUCH_END, function () {
                     this.frame = [0];
-                    core.assets["sound/start.wav"].play(true);
+                    playSE("start.wav");
                     scene.tl.cue({ 10 : startNewGame});
                 });
                 return sprite;
