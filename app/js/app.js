@@ -620,7 +620,7 @@ function main() {
                 scene.tl.cue({10: startNewGame});
             });
             var sendScore = newButton("send-score.png", GAMEOVER_TOP + 150, function () {
-                
+                scene.tl.cue({10: showSendScore});
             });
 
             scene.addChild(blackBackground);
@@ -631,6 +631,16 @@ function main() {
             scene.addChild(highScoreTitle);
             scene.addChild(highScoreNumber);
             scene.addChild(retry);
+            scene.addChild(sendScore);
+            scene.addChild(newVolumeControl(false));
+            core.replaceScene(scene);
+        };
+        var showSendScore = function() {
+            var scene = new Scene();
+            var sendScore = newButton("send-score.png", DISPLAY_HEIGHT / 2 + 150, function () {
+                scene.tl.cue({10: showGameover});
+            });
+            scene.addChild(blackBackground);
             scene.addChild(sendScore);
             scene.addChild(newVolumeControl(false));
             core.replaceScene(scene);
