@@ -7,6 +7,7 @@ function main() {
     var SCORE_TOP = 16;
     var SCORE_TITLE_WIDTH = 48;
     var TITLE_TOP = 120;
+    var GAMEOVER_TOP = 200;
 
     // 左右どちらのボタンが押されているかを管理します
     var INPUT_NONE = 0;
@@ -557,7 +558,7 @@ function main() {
                 sprite.image = core.assets["img/chara1.png"];
                 sprite.frame = [3];
                 sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
-                sprite.y = (DISPLAY_HEIGHT / 2) - (height / 2);
+                sprite.y = GAMEOVER_TOP - (height / 2);
                 return sprite;
             })();
             var gameover = (function () {
@@ -567,7 +568,7 @@ function main() {
                 sprite.image = core.assets["img/gameover.png"];
                 sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
                 sprite.y = -2 * height;
-                sprite.tl.moveBy(0, DISPLAY_HEIGHT / 2 + height / 2, 24, enchant.Easing.BOUNCE_EASEOUT);
+                sprite.tl.moveBy(0, GAMEOVER_TOP + height / 2, 24, enchant.Easing.BOUNCE_EASEOUT);
                 return sprite;
             })();
             var highScoreTitle = (function () {
@@ -575,7 +576,7 @@ function main() {
                 label.text = "High Score:";
                 label.textAlign = "right";
                 label.x = (-DISPLAY_WIDTH / 2);
-                label.y = (DISPLAY_HEIGHT / 2) + 32;
+                label.y = GAMEOVER_TOP + 32;
                 label.color = "#eeeeee";
                 label.font = "14px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
                 return label;
@@ -584,7 +585,7 @@ function main() {
                 var label = new Label();
                 label.text = highScore;
                 label.x = (DISPLAY_WIDTH / 2);
-                label.y = (DISPLAY_HEIGHT / 2) + 32;
+                label.y = GAMEOVER_TOP + 32;
                 label.color = "#eeeeee";
                 label.font = "bold 16px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
                 return label;
@@ -594,7 +595,7 @@ function main() {
                 label.text = "Score:";
                 label.textAlign = "right";
                 label.x = (-DISPLAY_WIDTH / 2);
-                label.y = (DISPLAY_HEIGHT / 2) + 52;
+                label.y = GAMEOVER_TOP + 52;
                 label.color = "#eeeeee";
                 label.font = "14px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
                 return label;
@@ -603,7 +604,7 @@ function main() {
                 var label = new Label();
                 label.text = lastScore;
                 label.x = (DISPLAY_WIDTH / 2);
-                label.y = (DISPLAY_HEIGHT / 2) + 52;
+                label.y = GAMEOVER_TOP + 52;
                 label.color = "#eeeeee";
                 label.font = "bold 16px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
                 return label;
@@ -615,7 +616,7 @@ function main() {
                 sprite.image = core.assets["img/retry.png"];
                 sprite.frame = [0];
                 sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
-                sprite.y = (DISPLAY_HEIGHT / 2) + 90;
+                sprite.y = GAMEOVER_TOP + 90;
                 sprite.addEventListener(Event.TOUCH_START, function () {
                     this.frame = [1];
                 });
@@ -626,6 +627,7 @@ function main() {
                 });
                 return sprite;
             })();
+
             scene.addChild(blackBackground);
             scene.addChild(gameover);
             scene.addChild(bear);
