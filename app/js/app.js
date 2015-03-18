@@ -498,6 +498,24 @@ function main() {
             })();
             return sprite;
         })();
+        var newButton = function (filename, y, callback) {
+            var width = 180;
+            var height = 60;
+            var sprite = new Sprite(width, height);
+            sprite.image = core.assets["img/" + filename];
+            sprite.frame = [0];
+            sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
+            sprite.y = y;
+            sprite.addEventListener(Event.TOUCH_START, function () {
+                this.frame = [1];
+            });
+            sprite.addEventListener(Event.TOUCH_END, function () {
+                this.frame = [0];
+                playSE("start.wav");
+                callback();
+            });
+            return sprite;
+        };
         var titleScene = (function () {
             var scene = new Scene();
             var title = (function () {
@@ -519,25 +537,10 @@ function main() {
                 sprite.y = TITLE_TOP + 70;
                 return sprite;
             })();
-            var start = (function () {
-                var width = 180;
-                var height = 60;
-                var sprite = new Sprite(width, height);
-                sprite.image = core.assets["img/start.png"];
-                sprite.frame = [0];
-                sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
-                sprite.y = TITLE_TOP + 150;
-                sprite.addEventListener(Event.TOUCH_START, function () {
-                    this.frame = [1];
-                });
-                sprite.addEventListener(Event.TOUCH_END, function () {
-                    this.frame = [0];
-                    playSE("start.wav");
-                    bear.frame = [1];
-                    scene.tl.cue({10: startNewGame});
-                });
-                return sprite;
-            })();
+            var start = newButton("start.png", TITLE_TOP + 150, function () {
+                bear.frame = [1];
+                scene.tl.cue({10: startNewGame});
+            });
             scene.addChild(blackBackground);
             scene.addChild(title);
             scene.addChild(bear);
@@ -609,24 +612,9 @@ function main() {
                 label.font = "bold 16px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
                 return label;
             })();
-            var retry = (function () {
-                var width = 180;
-                var height = 60;
-                var sprite = new Sprite(width, height);
-                sprite.image = core.assets["img/retry.png"];
-                sprite.frame = [0];
-                sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
-                sprite.y = GAMEOVER_TOP + 90;
-                sprite.addEventListener(Event.TOUCH_START, function () {
-                    this.frame = [1];
-                });
-                sprite.addEventListener(Event.TOUCH_END, function () {
-                    this.frame = [0];
-                    playSE("start.wav");
-                    scene.tl.cue({10: startNewGame});
-                });
-                return sprite;
-            })();
+            var retry = newButton("retry.png", GAMEOVER_TOP + 90, function () {
+                scene.tl.cue({10: startNewGame});
+            });
 
             scene.addChild(blackBackground);
             scene.addChild(gameover);
