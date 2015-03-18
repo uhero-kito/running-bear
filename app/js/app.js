@@ -18,6 +18,28 @@ function main() {
     var volume = false;
     var playingBGM = null;
 
+    // 表示領域をデバイスの中央に設定します
+    (function () {
+        var doc = document.documentElement;
+        var width = doc.clientWidth;
+        var height = doc.clientHeight;
+        var canvasAspect = DISPLAY_WIDTH / DISPLAY_HEIGHT;
+        var windowAspect = doc.clientWidth / doc.clientHeight;
+        console.log("canvas:%s, window:%s", canvasAspect, windowAspect);
+        var bodyStyle = document.getElementsByTagName("body")[0].style;
+        if (canvasAspect < windowAspect) {
+            var newHeight = height;
+            var newWidth = height * canvasAspect;
+        }
+        if (windowAspect < canvasAspect) {
+            var newHeight = width / canvasAspect;
+            var newWidth = width;
+        }
+        bodyStyle.width = newWidth + "px";
+        bodyStyle.height = newHeight + "px";
+        console.log(bodyStyle);
+    })();
+
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png", "img/volume.png"
