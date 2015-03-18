@@ -43,7 +43,7 @@ function main() {
 
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png", "img/volume.png"
+    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png", "img/send-score.png", "img/volume.png"
             , "sound/main.mp3", "sound/hit.wav", "sound/get.wav", "sound/start.wav");
     core.fps = 15;
     core.onload = function () {
@@ -619,6 +619,9 @@ function main() {
             var retry = newButton("retry.png", GAMEOVER_TOP + 90, function () {
                 scene.tl.cue({10: startNewGame});
             });
+            var sendScore = newButton("send-score.png", GAMEOVER_TOP + 150, function () {
+                
+            });
 
             scene.addChild(blackBackground);
             scene.addChild(gameover);
@@ -628,6 +631,7 @@ function main() {
             scene.addChild(highScoreTitle);
             scene.addChild(highScoreNumber);
             scene.addChild(retry);
+            scene.addChild(sendScore);
             scene.addChild(newVolumeControl(false));
             core.replaceScene(scene);
         };
