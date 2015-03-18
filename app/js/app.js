@@ -506,14 +506,18 @@ function main() {
             sprite.frame = [0];
             sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
             sprite.y = y;
-            sprite.addEventListener(Event.TOUCH_START, function () {
+            var touchStart = function () {
                 this.frame = [1];
-            });
-            sprite.addEventListener(Event.TOUCH_END, function () {
+            };
+            var touchEnd = function () {
                 this.frame = [0];
+                this.removeEventListener(Event.TOUCH_START, touchStart);
+                this.removeEventListener(Event.TOUCH_END, touchEnd);
                 playSE("start.wav");
                 callback();
-            });
+            };
+            sprite.addEventListener(Event.TOUCH_START, touchStart);
+            sprite.addEventListener(Event.TOUCH_END, touchEnd);
             return sprite;
         };
         var titleScene = (function () {
