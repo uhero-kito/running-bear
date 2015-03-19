@@ -649,6 +649,7 @@ function main() {
             var keyboardTop = 80;
             var keyboardLeft = (DISPLAY_WIDTH / 2) - keyboardWidth / 2;
             var textareaTop = keyboardTop + keyboardHeight + 20;
+            var scoreTop = textareaTop + 90;
             var nameNumbers = [];
             var scene = new Scene();
             var yourname = (function () {
@@ -773,6 +774,25 @@ function main() {
             var sendScore = newButton("send-score.png", DISPLAY_HEIGHT / 2 + 150, function () {
                 scene.tl.cue({10: showGameover});
             });
+            var scoreTitle = (function () {
+                var label = new Label();
+                label.text = "Score:";
+                label.textAlign = "right";
+                label.x = (-DISPLAY_WIDTH / 2);
+                label.y = scoreTop;
+                label.color = "#eeeeee";
+                label.font = "14px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+                return label;
+            })();
+            var scoreNumber = (function () {
+                var label = new Label();
+                label.text = lastScore;
+                label.x = (DISPLAY_WIDTH / 2);
+                label.y = scoreTop;
+                label.color = "#eeeeee";
+                label.font = "bold 16px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+                return label;
+            })();
 
             scene.addChild(blackBackground);
             scene.addChild(yourname);
@@ -784,6 +804,8 @@ function main() {
             textareaChars.map(function (c) {
                 scene.addChild(c);
             });
+            scene.addChild(scoreTitle);
+            scene.addChild(scoreNumber);
             scene.addChild(sendScore);
             scene.addChild(newVolumeControl(false));
             core.replaceScene(scene);
