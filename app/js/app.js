@@ -650,6 +650,7 @@ function main() {
             var keyboardLeft = (DISPLAY_WIDTH / 2) - keyboardWidth / 2;
             var textareaTop = keyboardTop + keyboardHeight + 20;
             var scoreTop = textareaTop + 90;
+            var sendScoreTop = scoreTop + 30;
             var nameNumbers = [];
             var scene = new Scene();
             var yourname = (function () {
@@ -771,7 +772,7 @@ function main() {
                 sprite.y = keyboardTop + keyboardHeight + 20;
                 return sprite;
             })();
-            var sendScore = newButton("send-score.png", DISPLAY_HEIGHT / 2 + 150, function () {
+            var sendScore = newButton("send-score.png", sendScoreTop, function () {
                 scene.tl.cue({10: showGameover});
             });
             var scoreTitle = (function () {
