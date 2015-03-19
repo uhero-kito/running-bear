@@ -43,7 +43,7 @@ function main() {
 
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png", "img/cancel.png", "img/send-score.png", "img/volume.png", "img/yourname.png", "img/alphabets.png"
+    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png", "img/cancel.png", "img/send-score.png", "img/volume.png", "img/yourname.png", "img/alphabets.png", "img/ranking.png"
             , "sound/main.mp3", "sound/hit.wav", "sound/get.wav", "sound/start.wav", "sound/keypress.wav");
     core.fps = 15;
     core.onload = function () {
@@ -807,7 +807,7 @@ function main() {
              */
             var showWaitingScene = function () {
                 if (ranking && ranking["status"] === "ok") {
-                    showTitleScene();
+                    showRanking(ranking);
                     return;
                 }
 
@@ -867,10 +867,10 @@ function main() {
                     // ランキングが正常に受信できた場合は次の画面に遷移します
                     if (ranking["status"] === "ok") {
                         core.popScene();
-                        showTitleScene();
-                        return;
+                        showRanking(ranking);
+                    } else {
+                        core.replaceScene(getErrorScene());
                     }
-                    core.replaceScene(getErrorScene());
                 };
                 /**
                  * エラーが返ってきた場合に再送信するかどうかのダイアログを表示します
@@ -951,6 +951,28 @@ function main() {
             scene.addChild(scoreNumber);
             scene.addChild(sendScore);
             scene.addChild(cancel);
+            scene.addChild(newVolumeControl(false));
+            core.replaceScene(scene);
+        };
+        /**
+         * ランキング画面を表示します
+         */
+        var showRanking = function (ranking) {
+            var scene = new Scene();
+            var title = (function () {
+                var width = 320;
+                var height = 60;
+                var sprite = new Sprite(width, height);
+                sprite.image = core.assets["img/ranking.png"];
+                sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
+                sprite.y = 0;
+                return sprite;
+            })();
+            var retry = newButton("retry.png", DISPLAY_HEIGHT - 90, function () {
+                scene.tl.cue({5: startNewGame});
+            });
+            scene.addChild(title);
+            scene.addChild(retry);
             scene.addChild(newVolumeControl(false));
             core.replaceScene(scene);
         };
