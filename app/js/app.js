@@ -774,29 +774,12 @@ function main() {
                 sprite.y = keyboardTop + keyboardHeight + 20;
                 return sprite;
             })();
-            var fetchRanking = function () {
-                if (ranking) {
-                    showGameover();
-                }
-                var overlay = (function () {
-                    var sprite = new Sprite(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-                    sprite.image = (function () {
-                        var surface = new Surface(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-                        var context = surface.context;
-                        context.fillStyle = "rgba(0, 0, 0, 0.75)";
-                        context.fillRect(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
-                        return surface;
-                    })();
-                    return sprite;
-                })();
-                scene.addChild(overlay);
-                overlay.addEventListener(Event.ENTER_FRAME, function () {
-                    if (ranking) {
-                        showGameover();
-                    }
-                });
-            };
-            var sendScore = newButton("send-score.png", sendScoreTop, function () {
+
+            /**
+             * 得点を送信し、最新のランキングを取得します。
+             * 結果は変数 ranking に格納されます。
+             */
+            var sendRequest = function () {
                 var data = {
                     "score": lastScore,
                     "name": nameNumbers.join(",")
@@ -810,11 +793,106 @@ function main() {
                         ranking = json;
                     },
                     "error": function (jqXHR, status) {
-                        console.log(jqXHR, status);
-                        ranking = {"status":"error"};
+                        ranking = {"status": "error"};
                     }
                 });
-                scene.tl.cue({10: fetchRanking});
+            };
+            /**
+             * 通信に時間がかかる場合はアニメーションを表示します。
+             */
+            var showWaitingScene = function () {
+                if (ranking) {
+                    showGameover();
+                }
+                var overlay = (function () {
+                    var sprite = new Sprite(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                    sprite.image = (function () {
+                        var surface = new Surface(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                        var context = surface.context;
+                        context.fillStyle = "rgba(0, 0, 0, 0.9)";
+                        context.fillRect(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                        return surface;
+                    })();
+                    return sprite;
+                })();
+                var circle = (function () {
+                    var width = 64;
+                    var height = 64;
+                    var sprite = new Sprite(width, height);
+                    sprite.image = (function () {
+                        var surface = new Surface(width, height);
+                        var context = surface.context;
+                        context.beginPath();
+                        context.arc(width / 2, height / 2, width / 2, 0, 2 * Math.PI, false);
+                        context.fillStyle = "rgba(255, 255, 255, 0.75)";
+                        context.fill();
+                        return surface;
+                    })();
+                    sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
+                    sprite.y = (DISPLAY_HEIGHT / 2) - (height / 2);
+                    return sprite;
+                })();
+                var bear = newRunningBear((DISPLAY_HEIGHT / 2) - 16);
+                var label = (function () {
+                    var label = new Label();
+                    label.text = "Loading...";
+                    label.textAlign = "center";
+                    label.x = 10;
+                    label.y = (DISPLAY_HEIGHT / 2) + 40;
+                    label.color = "#eeeeee";
+                    label.font = "16px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+                    return label;
+                })();
+                var error = (function () {
+                    var label = new Label();
+                    label.text = "Network Error";
+                    label.textAlign = "center";
+                    label.x = 10;
+                    label.y = (DISPLAY_HEIGHT / 2) - 60;
+                    label.color = "#eeeeee";
+                    label.font = "bold 24px/24px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+                    return label;
+                })();
+                var checkResponse = function () {
+                    if (!ranking) {
+                        return;
+                    }
+
+                    // ランキングが正常に受信できた場合は次の画面に遷移します
+                    if (ranking["status"] === "ok") {
+                        showGameover();
+                        return;
+                    }
+
+                    // エラーが返ってきた場合は再送信するかどうかのダイアログを表示します
+                    var callback = function () {
+                        core.popScene();
+                        startWaiting();
+                    };
+                    var retry = newButton("retry.png", (DISPLAY_HEIGHT / 2), function () {
+                        ranking = null;
+                        sendRequest();
+                        newScene.tl.cue({5: callback});
+                    });
+                    var newScene = new Scene();
+                    newScene.addChild(error);
+                    newScene.addChild(retry);
+                    core.replaceScene(newScene);
+                };
+                var startWaiting = function () {
+                    var newScene = new Scene();
+                    newScene.addChild(circle);
+                    newScene.addChild(bear);
+                    newScene.addChild(label);
+                    newScene.addEventListener(Event.ENTER_FRAME, checkResponse);
+                    core.pushScene(newScene);
+                };
+                scene.addChild(overlay);
+                startWaiting();
+            };
+            var sendScore = newButton("send-score.png", sendScoreTop, function () {
+                sendRequest();
+                scene.tl.cue({10: showWaitingScene});
             });
             var scoreTitle = (function () {
                 var label = new Label();
