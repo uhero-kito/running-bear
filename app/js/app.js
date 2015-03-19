@@ -784,6 +784,7 @@ function main() {
              * 結果は変数 ranking に格納されます。
              */
             var sendRequest = function () {
+                ranking = null;
                 var data = {
                     "score": lastScore,
                     "name": nameNumbers.join(",")
@@ -879,7 +880,6 @@ function main() {
                         core.replaceScene(getWaitingScene());
                     };
                     var retry = newButton("retry.png", (DISPLAY_HEIGHT / 2 -30), function () {
-                        ranking = null;
                         sendRequest();
                         newScene.tl.cue({5: retryCallback});
                     });
