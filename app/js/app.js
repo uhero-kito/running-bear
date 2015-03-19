@@ -805,6 +805,7 @@ function main() {
                     showGameover();
                     return;
                 }
+
                 var overlay = (function () {
                     var sprite = new Sprite(DISPLAY_WIDTH, DISPLAY_HEIGHT);
                     sprite.image = (function () {
@@ -894,9 +895,14 @@ function main() {
                     newScene.addEventListener(Event.ENTER_FRAME, checkResponse);
                     core.replaceScene(newScene);
                 };
+
                 scene.addChild(overlay);
                 core.pushScene(new Scene());
-                startWaiting();
+                if (ranking && ranking["status"] !== "ok") {
+                    showErrorScene();
+                } else {
+                    startWaiting();
+                }
             };
             var sendScore = newButton("send-score.png", sendScoreTop, function () {
                 sendRequest();
