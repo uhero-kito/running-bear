@@ -806,7 +806,7 @@ function main() {
              */
             var showWaitingScene = function () {
                 if (ranking && ranking["status"] === "ok") {
-                    showGameover();
+                    showTitleScene();
                     return;
                 }
 
@@ -860,53 +860,55 @@ function main() {
                     return label;
                 })();
                 var checkResponse = function () {
-                    if (!ranking) {
+                    if (this.age < 15 || !ranking) {
                         return;
                     }
-
                     // ランキングが正常に受信できた場合は次の画面に遷移します
                     if (ranking["status"] === "ok") {
                         core.popScene();
-                        showGameover();
+                        showTitleScene();
                         return;
                     }
-                    showErrorScene();
+                    core.replaceScene(getErrorScene());
                 };
                 /**
                  * エラーが返ってきた場合に再送信するかどうかのダイアログを表示します
                  */
-                var showErrorScene = function () {
+                var getErrorScene = function () {
+                    var retryCallback = function () {
+                        core.replaceScene(getWaitingScene());
+                    };
                     var retry = newButton("retry.png", (DISPLAY_HEIGHT / 2), function () {
                         ranking = null;
                         sendRequest();
-                        newScene.tl.cue({5: startWaiting});
+                        newScene.tl.cue({5: retryCallback});
                     });
-                    var cancel = newButton("cancel.png", (DISPLAY_HEIGHT / 2) + 60, function () {
+                    var cancelCallback = function () {
                         core.popScene();
                         showGameover();
+                    };
+                    var cancel = newButton("cancel.png", (DISPLAY_HEIGHT / 2) + 60, function () {
+                        newScene.tl.cue({5: cancelCallback});
                     });
                     var newScene = new Scene();
                     newScene.addChild(error);
                     newScene.addChild(retry);
                     newScene.addChild(cancel);
-                    core.replaceScene(newScene);
+                    return newScene;
                 };
-                var startWaiting = function () {
+                var getWaitingScene = function () {
                     var newScene = new Scene();
                     newScene.addChild(circle);
                     newScene.addChild(bear);
                     newScene.addChild(label);
                     newScene.addEventListener(Event.ENTER_FRAME, checkResponse);
-                    core.replaceScene(newScene);
+                    return newScene;
                 };
 
                 scene.addChild(overlay);
-                core.pushScene(new Scene());
-                if (ranking && ranking["status"] !== "ok") {
-                    showErrorScene();
-                } else {
-                    startWaiting();
-                }
+                // 現在のシーンの上に通信中のシーンを重ねます
+                var newScene = (ranking && ranking["status"] !== "ok") ? getErrorScene() : getWaitingScene();
+                core.pushScene(newScene);
             };
             var sendScore = newButton("send-score.png", sendScoreTop, function () {
                 sendRequest();
