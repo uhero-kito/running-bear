@@ -652,6 +652,7 @@ function main() {
             var scoreTop = textareaTop + 90;
             var sendScoreTop = scoreTop + 30;
             var nameNumbers = [];
+            var ranking = null;
             var scene = new Scene();
             var yourname = (function () {
                 var width = 320;
@@ -772,8 +773,47 @@ function main() {
                 sprite.y = keyboardTop + keyboardHeight + 20;
                 return sprite;
             })();
+            var fetchRanking = function () {
+                if (ranking) {
+                    showGameover();
+                }
+                var overlay = (function () {
+                    var sprite = new Sprite(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                    sprite.image = (function () {
+                        var surface = new Surface(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                        var context = surface.context;
+                        context.fillStyle = "rgba(0, 0, 0, 0.75)";
+                        context.fillRect(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                        return surface;
+                    })();
+                    return sprite;
+                })();
+                scene.addChild(overlay);
+                overlay.addEventListener(Event.ENTER_FRAME, function () {
+                    if (ranking) {
+                        showGameover();
+                    }
+                });
+            };
             var sendScore = newButton("send-score.png", sendScoreTop, function () {
-                scene.tl.cue({10: showGameover});
+                var data = {
+                    "score": lastScore,
+                    "name": nameNumbers.join(",")
+                };
+                $.ajax({
+                    "type": "POST",
+                    "url": "http://www.uhero.co.jp/running-bear/ranking.php",
+                    "data": data,
+                    "dataType": "json",
+                    "success": function (json) {
+                        ranking = json;
+                    },
+                    "error": function (jqXHR, status) {
+                        console.log(jqXHR, status);
+                        ranking = {"status":"error"};
+                    }
+                });
+                scene.tl.cue({10: fetchRanking});
             });
             var scoreTitle = (function () {
                 var label = new Label();
