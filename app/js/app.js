@@ -648,6 +648,8 @@ function main() {
             var keyboardHeight = charHeight * charRows;
             var keyboardTop = 80;
             var keyboardLeft = (DISPLAY_WIDTH / 2) - keyboardWidth / 2;
+            var textareaTop = keyboardTop + keyboardHeight + 20;
+            var nameNumbers = [];
             var scene = new Scene();
             var yourname = (function () {
                 var width = 320;
@@ -677,11 +679,26 @@ function main() {
                 }
                 return arr;
             })();
+            var getTextareaChar = function (index) {
+                var left = (DISPLAY_WIDTH / 2) - (charWidth * 3 / 2);
+                var sprite = new Sprite(charWidth, charHeight);
+                sprite.x = left + (charWidth * index);
+                sprite.y = textareaTop + 20;
+                return sprite;
+            };
+            var textareaChars = (function () {
+                var arr = [];
+                for (var i = 0; i < 3; i++) {
+                    arr[i] = getTextareaChar(i);
+                }
+                return arr;
+            })();
             var keyboard = (function () {
                 var width = keyboardWidth;
                 var height = keyboardHeight;
                 var sprite = new Sprite(keyboardWidth, keyboardHeight);
                 var currentIndex = -1;
+                var nameIndex = 0;
                 sprite.x = keyboardLeft;
                 sprite.y = keyboardTop;
                 var getIndex = function (e) {
@@ -716,6 +733,21 @@ function main() {
                     if (currentIndex === -1) {
                         return;
                     }
+                    if (currentIndex === 27) {
+                        if (0 < nameIndex) {
+                            nameIndex--;
+                            delete nameNumbers[nameIndex];
+                            textareaChars[nameIndex].image = null;
+                        }
+                    } else {
+                        if (nameIndex <= 2) {
+                            nameNumbers[nameIndex] = currentIndex;
+                            chr = textareaChars[nameIndex];
+                            chr.image = core.assets["img/alphabets.png"];
+                            chr.frame = [currentIndex];
+                            nameIndex++;
+                        }
+                    }
                     alphabets[currentIndex].frame = [currentIndex];
                     currentIndex = -1;
                 });
@@ -748,6 +780,9 @@ function main() {
             });
             scene.addChild(keyboard);
             scene.addChild(textarea);
+            textareaChars.map(function (c) {
+                scene.addChild(c);
+            });
             scene.addChild(sendScore);
             scene.addChild(newVolumeControl(false));
             core.replaceScene(scene);
