@@ -651,7 +651,7 @@ function main() {
             var charRows = 4;
             var keyboardWidth = charWidth * charCols;
             var keyboardHeight = charHeight * charRows;
-            var keyboardTop = 80;
+            var keyboardTop = 60;
             var keyboardLeft = (DISPLAY_WIDTH / 2) - keyboardWidth / 2;
             var textareaTop = keyboardTop + keyboardHeight + 20;
             var scoreTop = textareaTop + 90;
@@ -665,7 +665,7 @@ function main() {
                 var sprite = new Sprite(width, height);
                 sprite.image = core.assets["img/yourname.png"];
                 sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
-                sprite.y = 20;
+                sprite.y = 0;
                 return sprite;
             })();
             var getAlphabet = function (index) {
@@ -815,7 +815,7 @@ function main() {
                     sprite.image = (function () {
                         var surface = new Surface(DISPLAY_WIDTH, DISPLAY_HEIGHT);
                         var context = surface.context;
-                        context.fillStyle = "rgba(0, 0, 0, 0.9)";
+                        context.fillStyle = "rgba(0, 0, 0, 0.94)";
                         context.fillRect(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
                         return surface;
                     })();
@@ -854,7 +854,7 @@ function main() {
                     label.text = "Network Error";
                     label.textAlign = "center";
                     label.x = 10;
-                    label.y = (DISPLAY_HEIGHT / 2) - 60;
+                    label.y = (DISPLAY_HEIGHT / 2) - 90;
                     label.color = "#eeeeee";
                     label.font = "bold 24px/24px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
                     return label;
@@ -878,7 +878,7 @@ function main() {
                     var retryCallback = function () {
                         core.replaceScene(getWaitingScene());
                     };
-                    var retry = newButton("retry.png", (DISPLAY_HEIGHT / 2), function () {
+                    var retry = newButton("retry.png", (DISPLAY_HEIGHT / 2 -30), function () {
                         ranking = null;
                         sendRequest();
                         newScene.tl.cue({5: retryCallback});
@@ -887,7 +887,7 @@ function main() {
                         core.popScene();
                         showGameover();
                     };
-                    var cancel = newButton("cancel.png", (DISPLAY_HEIGHT / 2) + 60, function () {
+                    var cancel = newButton("cancel.png", (DISPLAY_HEIGHT / 2) + 30, function () {
                         newScene.tl.cue({5: cancelCallback});
                     });
                     var newScene = new Scene();
@@ -913,6 +913,9 @@ function main() {
             var sendScore = newButton("send-score.png", sendScoreTop, function () {
                 sendRequest();
                 scene.tl.cue({15: showWaitingScene});
+            });
+            var cancel = newButton("cancel.png", sendScoreTop + 60, function () {
+                scene.tl.cue({5: showGameover});
             });
             var scoreTitle = (function () {
                 var label = new Label();
@@ -947,6 +950,7 @@ function main() {
             scene.addChild(scoreTitle);
             scene.addChild(scoreNumber);
             scene.addChild(sendScore);
+            scene.addChild(cancel);
             scene.addChild(newVolumeControl(false));
             core.replaceScene(scene);
         };
