@@ -44,7 +44,7 @@ function main() {
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png", "img/send-score.png", "img/volume.png", "img/yourname.png", "img/alphabets.png"
-            , "sound/main.mp3", "sound/hit.wav", "sound/get.wav", "sound/start.wav");
+            , "sound/main.mp3", "sound/hit.wav", "sound/get.wav", "sound/start.wav", "sound/keypress.wav");
     core.fps = 15;
     core.onload = function () {
         var playSE = function (filename) {
@@ -733,6 +733,7 @@ function main() {
                     if (currentIndex === -1) {
                         return;
                     }
+                    playSE("keypress.wav");
                     if (currentIndex === 27) {
                         if (0 < nameIndex) {
                             nameIndex--;
