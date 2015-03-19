@@ -530,7 +530,11 @@ function main() {
             sprite.y = y;
             return sprite;
         };
-        var titleScene = (function () {
+
+        /**
+         * タイトル画面を表示します
+         */
+        var showTitleScene = function () {
             var scene = new Scene();
             var title = (function () {
                 var width = DISPLAY_WIDTH;
@@ -551,8 +555,8 @@ function main() {
             scene.addChild(bear);
             scene.addChild(start);
             scene.addChild(newVolumeControl(false));
-            return scene;
-        })();
+            core.replaceScene(scene);
+        };
 
         /**
          * 現在の Scene をゲームオーバー画面に切り替えます
@@ -944,7 +948,7 @@ function main() {
             scene.addChild(newVolumeControl(false));
             core.replaceScene(scene);
         };
-        core.replaceScene(titleScene);
+        showTitleScene();
     };
     core.start();
 }
