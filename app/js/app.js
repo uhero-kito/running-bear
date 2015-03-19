@@ -43,7 +43,7 @@ function main() {
 
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png", "img/send-score.png", "img/volume.png", "img/yourname.png", "img/alphabets.png"
+    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png", "img/cancel.png", "img/send-score.png", "img/volume.png", "img/yourname.png", "img/alphabets.png"
             , "sound/main.mp3", "sound/hit.wav", "sound/get.wav", "sound/start.wav", "sound/keypress.wav");
     core.fps = 15;
     core.onload = function () {
@@ -801,8 +801,9 @@ function main() {
              * 通信に時間がかかる場合はアニメーションを表示します。
              */
             var showWaitingScene = function () {
-                if (ranking) {
+                if (ranking && ranking["status"] === "ok") {
                     showGameover();
+                    return;
                 }
                 var overlay = (function () {
                     var sprite = new Sprite(DISPLAY_WIDTH, DISPLAY_HEIGHT);
@@ -860,23 +861,25 @@ function main() {
 
                     // ランキングが正常に受信できた場合は次の画面に遷移します
                     if (ranking["status"] === "ok") {
+                        core.popScene();
                         showGameover();
                         return;
                     }
 
                     // エラーが返ってきた場合は再送信するかどうかのダイアログを表示します
-                    var callback = function () {
-                        core.popScene();
-                        startWaiting();
-                    };
                     var retry = newButton("retry.png", (DISPLAY_HEIGHT / 2), function () {
                         ranking = null;
                         sendRequest();
-                        newScene.tl.cue({5: callback});
+                        newScene.tl.cue({5: startWaiting});
+                    });
+                    var cancel = newButton("cancel.png", (DISPLAY_HEIGHT / 2) + 60, function () {
+                        core.popScene();
+                        showGameover();
                     });
                     var newScene = new Scene();
                     newScene.addChild(error);
                     newScene.addChild(retry);
+                    newScene.addChild(cancel);
                     core.replaceScene(newScene);
                 };
                 var startWaiting = function () {
@@ -885,14 +888,15 @@ function main() {
                     newScene.addChild(bear);
                     newScene.addChild(label);
                     newScene.addEventListener(Event.ENTER_FRAME, checkResponse);
-                    core.pushScene(newScene);
+                    core.replaceScene(newScene);
                 };
                 scene.addChild(overlay);
+                core.pushScene(new Scene());
                 startWaiting();
             };
             var sendScore = newButton("send-score.png", sendScoreTop, function () {
                 sendRequest();
-                scene.tl.cue({10: showWaitingScene});
+                scene.tl.cue({15: showWaitingScene});
             });
             var scoreTitle = (function () {
                 var label = new Label();
