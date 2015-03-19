@@ -865,8 +865,12 @@ function main() {
                         showGameover();
                         return;
                     }
-
-                    // エラーが返ってきた場合は再送信するかどうかのダイアログを表示します
+                    showErrorScene();
+                };
+                /**
+                 * エラーが返ってきた場合に再送信するかどうかのダイアログを表示します
+                 */
+                var showErrorScene = function () {
                     var retry = newButton("retry.png", (DISPLAY_HEIGHT / 2), function () {
                         ranking = null;
                         sendRequest();
