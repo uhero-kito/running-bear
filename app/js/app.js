@@ -520,6 +520,16 @@ function main() {
             sprite.addEventListener(Event.TOUCH_END, touchEnd);
             return sprite;
         };
+        var newRunningBear = function (y) {
+            var width = 32;
+            var height = 32;
+            var sprite = new Sprite(width, height);
+            sprite.image = core.assets["img/chara1.png"];
+            sprite.frame = [0, 1, 1, 0, 2, 2];
+            sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
+            sprite.y = y;
+            return sprite;
+        };
         var titleScene = (function () {
             var scene = new Scene();
             var title = (function () {
@@ -531,16 +541,7 @@ function main() {
                 sprite.y = TITLE_TOP;
                 return sprite;
             })();
-            var bear = (function () {
-                var width = 32;
-                var height = 32;
-                var sprite = new Sprite(width, height);
-                sprite.image = core.assets["img/chara1.png"];
-                sprite.frame = [0, 1, 1, 0, 2, 2];
-                sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
-                sprite.y = TITLE_TOP + 70;
-                return sprite;
-            })();
+            var bear = newRunningBear(TITLE_TOP + 70);
             var start = newButton("start.png", TITLE_TOP + 150, function () {
                 bear.frame = [1];
                 scene.tl.cue({10: startNewGame});
