@@ -43,7 +43,7 @@ function main() {
 
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png", "img/send-score.png", "img/volume.png"
+    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png", "img/send-score.png", "img/volume.png", "img/yourname.png", "img/alphabets.png"
             , "sound/main.mp3", "sound/hit.wav", "sound/get.wav", "sound/start.wav");
     core.fps = 15;
     core.onload = function () {
@@ -635,12 +635,119 @@ function main() {
             scene.addChild(newVolumeControl(false));
             core.replaceScene(scene);
         };
-        var showSendScore = function() {
+
+        /**
+         * スコア送信画面を表示します
+         */
+        var showSendScore = function () {
+            var charWidth = 40;
+            var charHeight = 40;
+            var charCols = 7;
+            var charRows = 4;
+            var keyboardWidth = charWidth * charCols;
+            var keyboardHeight = charHeight * charRows;
+            var keyboardTop = 80;
+            var keyboardLeft = (DISPLAY_WIDTH / 2) - keyboardWidth / 2;
             var scene = new Scene();
+            var yourname = (function () {
+                var width = 320;
+                var height = 60;
+                var sprite = new Sprite(width, height);
+                sprite.image = core.assets["img/yourname.png"];
+                sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
+                sprite.y = 20;
+                return sprite;
+            })();
+            var getAlphabet = function (index) {
+                var width = charWidth;
+                var height = charHeight;
+                var x = (index % 7) * width;
+                var y = Math.floor(index / 7) * height;
+                var sprite = new Sprite(width, height);
+                sprite.image = core.assets["img/alphabets.png"];
+                sprite.frame = [index];
+                sprite.x = keyboardLeft + x;
+                sprite.y = keyboardTop + y;
+                return sprite;
+            };
+            var alphabets = (function () {
+                var arr = [];
+                for (var i = 0; i < 28; i++) {
+                    arr[i] = getAlphabet(i);
+                }
+                return arr;
+            })();
+            var keyboard = (function () {
+                var width = keyboardWidth;
+                var height = keyboardHeight;
+                var sprite = new Sprite(keyboardWidth, keyboardHeight);
+                var currentIndex = -1;
+                sprite.x = keyboardLeft;
+                sprite.y = keyboardTop;
+                var getIndex = function (e) {
+                    var x = e.x - keyboardLeft;
+                    var y = e.y - keyboardTop;
+                    var col = Math.floor(x / charWidth);
+                    if (col < 0 || charCols <= col) {
+                        return -1;
+                    }
+                    var row = Math.floor(y / charHeight);
+                    if (row < 0 || charRows <= row) {
+                        return -1;
+                    }
+                    return row * 7 + col;
+                };
+                var touchKeyboard = function (e) {
+                    var index = getIndex(e);
+                    if (currentIndex === index) {
+                        return;
+                    }
+                    if (0 <= currentIndex) {
+                        alphabets[currentIndex].frame = [currentIndex];
+                    }
+                    if (0 <= index) {
+                        alphabets[index].frame = [index + 28];
+                    }
+                    currentIndex = index;
+                };
+                sprite.addEventListener(Event.TOUCH_START, touchKeyboard);
+                sprite.addEventListener(Event.TOUCH_MOVE, touchKeyboard);
+                sprite.addEventListener(Event.TOUCH_END, function (e) {
+                    if (currentIndex === -1) {
+                        return;
+                    }
+                    alphabets[currentIndex].frame = [currentIndex];
+                    currentIndex = -1;
+                });
+                return sprite;
+            })();
+            var textarea = (function () {
+                var width = 160;
+                var height = 80;
+                var sprite = new Sprite(width, height);
+                sprite.image = (function () {
+                    var surface = new Surface(width, height);
+                    var context = surface.context;
+                    context.lineWidth = 4.0;
+                    context.strokeStyle = "#eeeeee";
+                    context.strokeRect(0, 0, width, height);
+                    return surface;
+                })();
+                sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
+                sprite.y = keyboardTop + keyboardHeight + 20;
+                return sprite;
+            })();
             var sendScore = newButton("send-score.png", DISPLAY_HEIGHT / 2 + 150, function () {
                 scene.tl.cue({10: showGameover});
             });
+
             scene.addChild(blackBackground);
+            scene.addChild(yourname);
+            alphabets.map(function (a) {
+                scene.addChild(a);
+            });
+            scene.addChild(keyboard);
+            scene.addChild(textarea);
             scene.addChild(sendScore);
             scene.addChild(newVolumeControl(false));
             core.replaceScene(scene);
