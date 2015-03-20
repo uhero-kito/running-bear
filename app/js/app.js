@@ -7,6 +7,7 @@ function main() {
     var SCORE_TOP = 16;
     var SCORE_TITLE_WIDTH = 48;
     var TITLE_TOP = 120;
+    var GAMEOVER_TOP = 200;
 
     // 左右どちらのボタンが押されているかを管理します
     var INPUT_NONE = 0;
@@ -42,8 +43,8 @@ function main() {
 
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png", "img/volume.png"
-            ,"sound/main.mp3", "sound/hit.wav", "sound/get.wav", "sound/start.wav");
+    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png", "img/cancel.png", "img/send-score.png", "img/volume.png", "img/yourname.png", "img/alphabets.png", "img/ranking.png"
+            , "sound/main.mp3", "sound/hit.wav", "sound/get.wav", "sound/start.wav", "sound/keypress.wav");
     core.fps = 15;
     core.onload = function () {
         var playSE = function (filename) {
@@ -369,9 +370,7 @@ function main() {
                             return 2 * (x * x * (c - b) + b - (peak * peak));
                         });
                         gameScene.removeEventListener(Event.ENTER_FRAME, createObject);
-                        gameScene.tl.cue({
-                            45: showGameover
-                        });
+                        gameScene.tl.cue({45: showGameover});
                         stopBGM();
                         playSE("hit.wav");
                     }
@@ -497,7 +496,43 @@ function main() {
             })();
             return sprite;
         })();
-        var titleScene = (function () {
+        var newButton = function (filename, y, callback) {
+            var width = 180;
+            var height = 60;
+            var sprite = new Sprite(width, height);
+            sprite.image = core.assets["img/" + filename];
+            sprite.frame = [0];
+            sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
+            sprite.y = y;
+            var touchStart = function () {
+                this.frame = [1];
+            };
+            var touchEnd = function () {
+                this.frame = [0];
+                this.removeEventListener(Event.TOUCH_START, touchStart);
+                this.removeEventListener(Event.TOUCH_END, touchEnd);
+                playSE("start.wav");
+                callback();
+            };
+            sprite.addEventListener(Event.TOUCH_START, touchStart);
+            sprite.addEventListener(Event.TOUCH_END, touchEnd);
+            return sprite;
+        };
+        var newRunningBear = function (y) {
+            var width = 32;
+            var height = 32;
+            var sprite = new Sprite(width, height);
+            sprite.image = core.assets["img/chara1.png"];
+            sprite.frame = [0, 1, 1, 0, 2, 2];
+            sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
+            sprite.y = y;
+            return sprite;
+        };
+
+        /**
+         * タイトル画面を表示します
+         */
+        var showTitleScene = function () {
             var scene = new Scene();
             var title = (function () {
                 var width = DISPLAY_WIDTH;
@@ -508,42 +543,18 @@ function main() {
                 sprite.y = TITLE_TOP;
                 return sprite;
             })();
-            var bear = (function () {
-                var width = 32;
-                var height = 32;
-                var sprite = new Sprite(width, height);
-                sprite.image = core.assets["img/chara1.png"];
-                sprite.frame = [0, 1, 1, 0, 2, 2];
-                sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
-                sprite.y = TITLE_TOP + 70;
-                return sprite;
-            })();
-            var start = (function () {
-                var width = 180;
-                var height = 60;
-                var sprite = new Sprite(width, height);
-                sprite.image = core.assets["img/start.png"];
-                sprite.frame = [0];
-                sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
-                sprite.y = TITLE_TOP + 150;
-                sprite.addEventListener(Event.TOUCH_START, function () {
-                    this.frame = [1];
-                });
-                sprite.addEventListener(Event.TOUCH_END, function () {
-                    this.frame = [0];
-                    playSE("start.wav");
-                    bear.frame = [1];
-                    scene.tl.cue({ 10 : startNewGame});
-                });
-                return sprite;
-            })();
+            var bear = newRunningBear(TITLE_TOP + 70);
+            var start = newButton("start.png", TITLE_TOP + 150, function () {
+                bear.frame = [1];
+                scene.tl.cue({10: startNewGame});
+            });
             scene.addChild(blackBackground);
             scene.addChild(title);
             scene.addChild(bear);
             scene.addChild(start);
             scene.addChild(newVolumeControl(false));
-            return scene;
-        })();
+            core.replaceScene(scene);
+        };
 
         /**
          * 現在の Scene をゲームオーバー画面に切り替えます
@@ -557,7 +568,7 @@ function main() {
                 sprite.image = core.assets["img/chara1.png"];
                 sprite.frame = [3];
                 sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
-                sprite.y = (DISPLAY_HEIGHT / 2) - (height / 2);
+                sprite.y = GAMEOVER_TOP - (height / 2);
                 return sprite;
             })();
             var gameover = (function () {
@@ -567,7 +578,7 @@ function main() {
                 sprite.image = core.assets["img/gameover.png"];
                 sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
                 sprite.y = -2 * height;
-                sprite.tl.moveBy(0, DISPLAY_HEIGHT / 2 + height / 2, 24, enchant.Easing.BOUNCE_EASEOUT);
+                sprite.tl.moveBy(0, GAMEOVER_TOP + height / 2, 24, enchant.Easing.BOUNCE_EASEOUT);
                 return sprite;
             })();
             var highScoreTitle = (function () {
@@ -575,7 +586,7 @@ function main() {
                 label.text = "High Score:";
                 label.textAlign = "right";
                 label.x = (-DISPLAY_WIDTH / 2);
-                label.y = (DISPLAY_HEIGHT / 2) + 32;
+                label.y = GAMEOVER_TOP + 32;
                 label.color = "#eeeeee";
                 label.font = "14px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
                 return label;
@@ -584,7 +595,7 @@ function main() {
                 var label = new Label();
                 label.text = highScore;
                 label.x = (DISPLAY_WIDTH / 2);
-                label.y = (DISPLAY_HEIGHT / 2) + 32;
+                label.y = GAMEOVER_TOP + 32;
                 label.color = "#eeeeee";
                 label.font = "bold 16px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
                 return label;
@@ -594,7 +605,7 @@ function main() {
                 label.text = "Score:";
                 label.textAlign = "right";
                 label.x = (-DISPLAY_WIDTH / 2);
-                label.y = (DISPLAY_HEIGHT / 2) + 52;
+                label.y = GAMEOVER_TOP + 52;
                 label.color = "#eeeeee";
                 label.font = "14px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
                 return label;
@@ -603,29 +614,18 @@ function main() {
                 var label = new Label();
                 label.text = lastScore;
                 label.x = (DISPLAY_WIDTH / 2);
-                label.y = (DISPLAY_HEIGHT / 2) + 52;
+                label.y = GAMEOVER_TOP + 52;
                 label.color = "#eeeeee";
                 label.font = "bold 16px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
                 return label;
             })();
-            var retry = (function () {
-                var width = 180;
-                var height = 60;
-                var sprite = new Sprite(width, height);
-                sprite.image = core.assets["img/retry.png"];
-                sprite.frame = [0];
-                sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
-                sprite.y = (DISPLAY_HEIGHT / 2) + 90;
-                sprite.addEventListener(Event.TOUCH_START, function () {
-                    this.frame = [1];
-                });
-                sprite.addEventListener(Event.TOUCH_END, function () {
-                    this.frame = [0];
-                    playSE("start.wav");
-                    scene.tl.cue({ 10 : startNewGame});
-                });
-                return sprite;
-            })();
+            var retry = newButton("retry.png", GAMEOVER_TOP + 150, function () {
+                scene.tl.cue({10: startNewGame});
+            });
+            var sendScore = newButton("send-score.png", GAMEOVER_TOP + 90, function () {
+                scene.tl.cue({5: showSendScore});
+            });
+
             scene.addChild(blackBackground);
             scene.addChild(gameover);
             scene.addChild(bear);
@@ -634,10 +634,378 @@ function main() {
             scene.addChild(highScoreTitle);
             scene.addChild(highScoreNumber);
             scene.addChild(retry);
+            scene.addChild(sendScore);
             scene.addChild(newVolumeControl(false));
             core.replaceScene(scene);
         };
-        core.replaceScene(titleScene);
+
+        /**
+         * スコア送信画面を表示します
+         */
+        var showSendScore = function () {
+            var charWidth = 40;
+            var charHeight = 40;
+            var charCols = 7;
+            var charRows = 4;
+            var keyboardWidth = charWidth * charCols;
+            var keyboardHeight = charHeight * charRows;
+            var keyboardTop = 60;
+            var keyboardLeft = (DISPLAY_WIDTH / 2) - keyboardWidth / 2;
+            var textareaTop = keyboardTop + keyboardHeight + 20;
+            var scoreTop = textareaTop + 90;
+            var sendScoreTop = scoreTop + 30;
+            var nameNumbers = [];
+            var ranking = null;
+            var scene = new Scene();
+            var yourname = (function () {
+                var width = 320;
+                var height = 60;
+                var sprite = new Sprite(width, height);
+                sprite.image = core.assets["img/yourname.png"];
+                sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
+                sprite.y = 0;
+                return sprite;
+            })();
+            var getAlphabet = function (index) {
+                var width = charWidth;
+                var height = charHeight;
+                var x = (index % 7) * width;
+                var y = Math.floor(index / 7) * height;
+                var sprite = new Sprite(width, height);
+                sprite.image = core.assets["img/alphabets.png"];
+                sprite.frame = [index];
+                sprite.x = keyboardLeft + x;
+                sprite.y = keyboardTop + y;
+                return sprite;
+            };
+            var alphabets = (function () {
+                var arr = [];
+                for (var i = 0; i < 28; i++) {
+                    arr[i] = getAlphabet(i);
+                }
+                return arr;
+            })();
+            var getTextareaChar = function (index) {
+                var left = (DISPLAY_WIDTH / 2) - (charWidth * 3 / 2);
+                var sprite = new Sprite(charWidth, charHeight);
+                sprite.x = left + (charWidth * index);
+                sprite.y = textareaTop + 20;
+                return sprite;
+            };
+            var textareaChars = (function () {
+                var arr = [];
+                for (var i = 0; i < 3; i++) {
+                    arr[i] = getTextareaChar(i);
+                }
+                return arr;
+            })();
+            var keyboard = (function () {
+                var width = keyboardWidth;
+                var height = keyboardHeight;
+                var sprite = new Sprite(keyboardWidth, keyboardHeight);
+                var currentIndex = -1;
+                var nameIndex = 0;
+                sprite.x = keyboardLeft;
+                sprite.y = keyboardTop;
+                var getIndex = function (e) {
+                    var x = e.x - keyboardLeft;
+                    var y = e.y - keyboardTop;
+                    var col = Math.floor(x / charWidth);
+                    if (col < 0 || charCols <= col) {
+                        return -1;
+                    }
+                    var row = Math.floor(y / charHeight);
+                    if (row < 0 || charRows <= row) {
+                        return -1;
+                    }
+                    return row * 7 + col;
+                };
+                var touchKeyboard = function (e) {
+                    var index = getIndex(e);
+                    if (currentIndex === index) {
+                        return;
+                    }
+                    if (0 <= currentIndex) {
+                        alphabets[currentIndex].frame = [currentIndex];
+                    }
+                    if (0 <= index) {
+                        alphabets[index].frame = [index + 28];
+                    }
+                    currentIndex = index;
+                };
+                sprite.addEventListener(Event.TOUCH_START, touchKeyboard);
+                sprite.addEventListener(Event.TOUCH_MOVE, touchKeyboard);
+                sprite.addEventListener(Event.TOUCH_END, function (e) {
+                    if (currentIndex === -1) {
+                        return;
+                    }
+                    playSE("keypress.wav");
+                    if (currentIndex === 27) {
+                        if (0 < nameIndex) {
+                            nameIndex--;
+                            nameNumbers.splice(nameIndex, 1);
+                            textareaChars[nameIndex].image = null;
+                        }
+                    } else {
+                        if (nameIndex <= 2) {
+                            nameNumbers[nameIndex] = currentIndex;
+                            chr = textareaChars[nameIndex];
+                            chr.image = core.assets["img/alphabets.png"];
+                            chr.frame = [currentIndex];
+                            nameIndex++;
+                        }
+                    }
+                    alphabets[currentIndex].frame = [currentIndex];
+                    currentIndex = -1;
+                });
+                return sprite;
+            })();
+            var textarea = (function () {
+                var width = 160;
+                var height = 80;
+                var sprite = new Sprite(width, height);
+                sprite.image = (function () {
+                    var surface = new Surface(width, height);
+                    var context = surface.context;
+                    context.lineWidth = 4.0;
+                    context.strokeStyle = "#eeeeee";
+                    context.strokeRect(0, 0, width, height);
+                    return surface;
+                })();
+                sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
+                sprite.y = keyboardTop + keyboardHeight + 20;
+                return sprite;
+            })();
+
+            /**
+             * 得点を送信し、最新のランキングを取得します。
+             * 結果は変数 ranking に格納されます。
+             */
+            var sendRequest = function () {
+                ranking = null;
+                var data = {
+                    "score": lastScore,
+                    "name": nameNumbers.join(",")
+                };
+                $.ajax({
+                    "type": "POST",
+                    "url": "http://www.uhero.co.jp/running-bear/ranking.php",
+                    "data": data,
+                    "dataType": "json",
+                    "success": function (json) {
+                        ranking = json;
+                    },
+                    "error": function (jqXHR, status) {
+                        ranking = {"status": "error"};
+                    }
+                });
+            };
+            /**
+             * 通信に時間がかかる場合はアニメーションを表示します。
+             */
+            var showWaitingScene = function () {
+                if (ranking && ranking["status"] === "ok") {
+                    showRanking(ranking);
+                    return;
+                }
+
+                var overlay = (function () {
+                    var sprite = new Sprite(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                    sprite.image = (function () {
+                        var surface = new Surface(DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                        var context = surface.context;
+                        context.fillStyle = "rgba(0, 0, 0, 0.94)";
+                        context.fillRect(0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                        return surface;
+                    })();
+                    return sprite;
+                })();
+                var circle = (function () {
+                    var width = 64;
+                    var height = 64;
+                    var sprite = new Sprite(width, height);
+                    sprite.image = (function () {
+                        var surface = new Surface(width, height);
+                        var context = surface.context;
+                        context.beginPath();
+                        context.arc(width / 2, height / 2, width / 2, 0, 2 * Math.PI, false);
+                        context.fillStyle = "rgba(255, 255, 255, 0.75)";
+                        context.fill();
+                        return surface;
+                    })();
+                    sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
+                    sprite.y = (DISPLAY_HEIGHT / 2) - (height / 2);
+                    return sprite;
+                })();
+                var bear = newRunningBear((DISPLAY_HEIGHT / 2) - 16);
+                var label = (function () {
+                    var label = new Label();
+                    label.text = "Loading...";
+                    label.textAlign = "center";
+                    label.x = 10;
+                    label.y = (DISPLAY_HEIGHT / 2) + 40;
+                    label.color = "#eeeeee";
+                    label.font = "16px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+                    return label;
+                })();
+                var error = (function () {
+                    var label = new Label();
+                    label.text = "Network Error";
+                    label.textAlign = "center";
+                    label.x = 10;
+                    label.y = (DISPLAY_HEIGHT / 2) - 90;
+                    label.color = "#eeeeee";
+                    label.font = "bold 24px/24px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+                    return label;
+                })();
+                var checkResponse = function () {
+                    if (this.age < 15 || !ranking) {
+                        return;
+                    }
+                    // ランキングが正常に受信できた場合は次の画面に遷移します
+                    if (ranking["status"] === "ok") {
+                        core.popScene();
+                        showRanking(ranking);
+                    } else {
+                        core.replaceScene(getErrorScene());
+                    }
+                };
+                /**
+                 * エラーが返ってきた場合に再送信するかどうかのダイアログを表示します
+                 */
+                var getErrorScene = function () {
+                    var retryCallback = function () {
+                        core.replaceScene(getWaitingScene());
+                    };
+                    var retry = newButton("retry.png", (DISPLAY_HEIGHT / 2 -30), function () {
+                        sendRequest();
+                        newScene.tl.cue({5: retryCallback});
+                    });
+                    var cancelCallback = function () {
+                        core.popScene();
+                        showGameover();
+                    };
+                    var cancel = newButton("cancel.png", (DISPLAY_HEIGHT / 2) + 30, function () {
+                        newScene.tl.cue({5: cancelCallback});
+                    });
+                    var newScene = new Scene();
+                    newScene.addChild(error);
+                    newScene.addChild(retry);
+                    newScene.addChild(cancel);
+                    return newScene;
+                };
+                var getWaitingScene = function () {
+                    var newScene = new Scene();
+                    newScene.addChild(circle);
+                    newScene.addChild(bear);
+                    newScene.addChild(label);
+                    newScene.addEventListener(Event.ENTER_FRAME, checkResponse);
+                    return newScene;
+                };
+
+                scene.addChild(overlay);
+                // 現在のシーンの上に通信中のシーンを重ねます
+                var newScene = (ranking && ranking["status"] !== "ok") ? getErrorScene() : getWaitingScene();
+                core.pushScene(newScene);
+            };
+            var sendScore = newButton("send-score.png", sendScoreTop, function () {
+                sendRequest();
+                scene.tl.cue({15: showWaitingScene});
+            });
+            var cancel = newButton("cancel.png", sendScoreTop + 60, function () {
+                scene.tl.cue({5: showGameover});
+            });
+            var scoreTitle = (function () {
+                var label = new Label();
+                label.text = "Score:";
+                label.textAlign = "right";
+                label.x = (-DISPLAY_WIDTH / 2);
+                label.y = scoreTop;
+                label.color = "#eeeeee";
+                label.font = "14px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+                return label;
+            })();
+            var scoreNumber = (function () {
+                var label = new Label();
+                label.text = lastScore;
+                label.x = (DISPLAY_WIDTH / 2);
+                label.y = scoreTop;
+                label.color = "#eeeeee";
+                label.font = "bold 16px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+                return label;
+            })();
+
+            scene.addChild(blackBackground);
+            scene.addChild(yourname);
+            alphabets.map(function (a) {
+                scene.addChild(a);
+            });
+            scene.addChild(keyboard);
+            scene.addChild(textarea);
+            textareaChars.map(function (c) {
+                scene.addChild(c);
+            });
+            scene.addChild(scoreTitle);
+            scene.addChild(scoreNumber);
+            scene.addChild(sendScore);
+            scene.addChild(cancel);
+            scene.addChild(newVolumeControl(false));
+            core.replaceScene(scene);
+        };
+        /**
+         * ランキング画面を表示します
+         */
+        var showRanking = function (ranking) {
+            var RANKING_TOP = 70;
+            var RANKING_ITEM_WIDTH = 180;
+            var RANKING_ITEM_HEIGHT = 25;
+            var RETRY_TOP = RANKING_TOP + (11 * RANKING_ITEM_HEIGHT) + 20;
+            var scene = new Scene();
+            var title = (function () {
+                var width = 320;
+                var height = 60;
+                var sprite = new Sprite(width, height);
+                sprite.image = core.assets["img/ranking.png"];
+                sprite.x = (DISPLAY_WIDTH / 2) - (width / 2);
+                sprite.y = 0;
+                return sprite;
+            })();
+            var getText = function (text, x, align) {
+                var label = new Label();
+                label.text = text;
+                label.textAlign = align;
+                label.color = "#ffffff";
+                label.font = "16px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+                label.x = x;
+                return label;
+            };
+            var getRankingItem = function (entry, index, align) {
+                var group = new Group();
+                var x = (DISPLAY_WIDTH / 2) - (RANKING_ITEM_WIDTH / 2);
+                group.y = RANKING_TOP + (RANKING_ITEM_HEIGHT * (index + 1));
+                group.addChild(getText(String(index + 1) + ".", -DISPLAY_WIDTH + x + 40, "right"));
+                group.addChild(getText(entry["name"], x + 40, "left"));
+                group.addChild(getText(entry["score"], -x + 10, "right"));
+                return group;
+            };
+            var retry = newButton("retry.png", RETRY_TOP, function () {
+                scene.tl.cue({10: startNewGame});
+            });
+            var date = (function () {
+                var label = getText(ranking["date"], 15, "center");
+                label.y = RANKING_TOP;
+                return label;
+            })();
+            scene.addChild(title);
+            scene.addChild(date);
+            ranking["ranking"].map(function (entry, index) {
+                scene.addChild(getRankingItem(entry, index));
+            });
+            scene.addChild(retry);
+            scene.addChild(newVolumeControl(false));
+            core.replaceScene(scene);
+        };
+        showTitleScene();
     };
     core.start();
 }
