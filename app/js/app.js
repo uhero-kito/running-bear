@@ -54,6 +54,15 @@ function main() {
             var se = core.assets["sound/" + filename];
             se.clone().play();
         };
+        var playLoop = function () {
+            if (!playingBGM) {
+                return;
+            }
+            var bgm = core.assets["sound/" + playingBGM];
+            if (!bgm.src) {
+                bgm.play();
+            }
+        };
         var playBGM = function (filename) {
             if (playingBGM) {
                 core.assets["sound/" + playingBGM].stop();
@@ -62,7 +71,11 @@ function main() {
             var vol = volume ? 1 : 0;
             bgm.play();
             bgm.volume = vol;
-            bgm.src.loop = true;
+            if (bgm.src) {
+                bgm.src.loop = true;
+            } else {
+                core.currentScene.addEventListener(Event.ENTER_FRAME, playLoop);
+            }
             playingBGM = filename;
         };
         var stopBGM = function () {
@@ -71,7 +84,9 @@ function main() {
             }
             var bgm = core.assets["sound/" + playingBGM];
             bgm.stop();
-            bgm.src.loop = false;
+            if (bgm.src) {
+                bgm.src.loop = false;
+            }
             playingBGM = null;
         };
 
