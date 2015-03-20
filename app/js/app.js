@@ -1,3 +1,5 @@
+/* global enchant, Event */
+
 function main() {
     var DISPLAY_WIDTH = 320;
     var DISPLAY_HEIGHT = 512;
