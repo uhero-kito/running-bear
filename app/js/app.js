@@ -1,3 +1,5 @@
+/* global enchant, Event */
+
 function main() {
     var DISPLAY_WIDTH = 320;
     var DISPLAY_HEIGHT = 512;
@@ -26,7 +28,6 @@ function main() {
         var height = doc.clientHeight;
         var canvasAspect = DISPLAY_WIDTH / DISPLAY_HEIGHT;
         var windowAspect = doc.clientWidth / doc.clientHeight;
-        console.log("canvas:%s, window:%s", canvasAspect, windowAspect);
         var bodyStyle = document.getElementsByTagName("body")[0].style;
         if (canvasAspect < windowAspect) {
             var newHeight = height;
@@ -38,13 +39,12 @@ function main() {
         }
         bodyStyle.width = newWidth + "px";
         bodyStyle.height = newHeight + "px";
-        console.log(bodyStyle);
     })();
 
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png", "img/cancel.png", "img/send-score.png", "img/volume.png", "img/yourname.png", "img/alphabets.png", "img/ranking.png"
-            , "sound/main.mp3", "sound/hit.wav", "sound/get.wav", "sound/start.wav", "sound/keypress.wav");
+            , "sound/main.mp3", "sound/hit.mp3", "sound/get.mp3", "sound/start.mp3", "sound/keypress.mp3");
     core.fps = 15;
     core.onload = function () {
         var playSE = function (filename) {
@@ -54,6 +54,15 @@ function main() {
             var se = core.assets["sound/" + filename];
             se.clone().play();
         };
+        var playLoop = function () {
+            if (!playingBGM) {
+                return;
+            }
+            var bgm = core.assets["sound/" + playingBGM];
+            if (!bgm.src) {
+                bgm.play();
+            }
+        };
         var playBGM = function (filename) {
             if (playingBGM) {
                 core.assets["sound/" + playingBGM].stop();
@@ -62,7 +71,11 @@ function main() {
             var vol = volume ? 1 : 0;
             bgm.play();
             bgm.volume = vol;
-            bgm.src.loop = true;
+            if (bgm.src) {
+                bgm.src.loop = true;
+            } else {
+                core.currentScene.addEventListener(Event.ENTER_FRAME, playLoop);
+            }
             playingBGM = filename;
         };
         var stopBGM = function () {
@@ -71,7 +84,9 @@ function main() {
             }
             var bgm = core.assets["sound/" + playingBGM];
             bgm.stop();
-            bgm.src.loop = false;
+            if (bgm.src) {
+                bgm.src.loop = false;
+            }
             playingBGM = null;
         };
 
@@ -310,7 +325,7 @@ function main() {
                         gameScene.removeChild(sprite);
                         score++;
                         scoreNumber.text = score;
-                        playSE("get.wav");
+                        playSE("get.mp3");
                     }
                 });
                 return sprite;
@@ -372,7 +387,7 @@ function main() {
                         gameScene.removeEventListener(Event.ENTER_FRAME, createObject);
                         gameScene.tl.cue({45: showGameover});
                         stopBGM();
-                        playSE("hit.wav");
+                        playSE("hit.mp3");
                     }
                 });
                 return sprite;
@@ -382,7 +397,8 @@ function main() {
              * 得点が増えるほどオブジェクトが出現しやすくなります。
              * ゲーム開始直後については得点にかぎらずオブジェクトを出やすくします。
              * 
-             * @param {Number} score, age
+             * @param {Number} score 現在の得点
+             * @param {Number} age ゲーム開始からの経過フレーム数
              * @returns {Number}
              */
             var getHardness = function (score, age) {
@@ -511,7 +527,7 @@ function main() {
                 this.frame = [0];
                 this.removeEventListener(Event.TOUCH_START, touchStart);
                 this.removeEventListener(Event.TOUCH_END, touchEnd);
-                playSE("start.wav");
+                playSE("start.mp3");
                 callback();
             };
             sprite.addEventListener(Event.TOUCH_START, touchStart);
@@ -726,10 +742,10 @@ function main() {
                         return;
                     }
                     if (0 <= currentIndex) {
-                        alphabets[currentIndex].frame = [currentIndex];
+                        alphabets[currentIndex].frame = currentIndex;
                     }
                     if (0 <= index) {
-                        alphabets[index].frame = [index + 28];
+                        alphabets[index].frame = index + 28;
                     }
                     currentIndex = index;
                 };
@@ -739,7 +755,7 @@ function main() {
                     if (currentIndex === -1) {
                         return;
                     }
-                    playSE("keypress.wav");
+                    playSE("keypress.mp3");
                     if (currentIndex === 27) {
                         if (0 < nameIndex) {
                             nameIndex--;
@@ -755,7 +771,7 @@ function main() {
                             nameIndex++;
                         }
                     }
-                    alphabets[currentIndex].frame = [currentIndex];
+                    alphabets[currentIndex].frame = currentIndex;
                     currentIndex = -1;
                 });
                 return sprite;
@@ -954,6 +970,8 @@ function main() {
         };
         /**
          * ランキング画面を表示します
+         * 
+         * @param {Object} ranking サーバーから取得したランキング一覧
          */
         var showRanking = function (ranking) {
             var RANKING_TOP = 70;
