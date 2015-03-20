@@ -729,10 +729,10 @@ function main() {
                         return;
                     }
                     if (0 <= currentIndex) {
-                        alphabets[currentIndex].frame = [currentIndex];
+                        alphabets[currentIndex].frame = currentIndex;
                     }
                     if (0 <= index) {
-                        alphabets[index].frame = [index + 28];
+                        alphabets[index].frame = index + 28;
                     }
                     currentIndex = index;
                 };
@@ -758,7 +758,7 @@ function main() {
                             nameIndex++;
                         }
                     }
-                    alphabets[currentIndex].frame = [currentIndex];
+                    alphabets[currentIndex].frame = currentIndex;
                     currentIndex = -1;
                 });
                 return sprite;
