@@ -384,7 +384,8 @@ function main() {
              * 得点が増えるほどオブジェクトが出現しやすくなります。
              * ゲーム開始直後については得点にかぎらずオブジェクトを出やすくします。
              * 
-             * @param {Number} score, age
+             * @param {Number} score 現在の得点
+             * @param {Number} age ゲーム開始からの経過フレーム数
              * @returns {Number}
              */
             var getHardness = function (score, age) {
@@ -956,6 +957,8 @@ function main() {
         };
         /**
          * ランキング画面を表示します
+         * 
+         * @param {Object} ranking サーバーから取得したランキング一覧
          */
         var showRanking = function (ranking) {
             var RANKING_TOP = 70;
