@@ -44,7 +44,7 @@ function main() {
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png", "img/cancel.png", "img/send-score.png", "img/volume.png", "img/yourname.png", "img/alphabets.png", "img/ranking.png"
-            , "sound/main.mp3", "sound/hit.wav", "sound/get.wav", "sound/start.wav", "sound/keypress.wav");
+            , "sound/main.mp3", "sound/hit.mp3", "sound/get.mp3", "sound/start.mp3", "sound/keypress.mp3");
     core.fps = 15;
     core.onload = function () {
         var playSE = function (filename) {
@@ -325,7 +325,7 @@ function main() {
                         gameScene.removeChild(sprite);
                         score++;
                         scoreNumber.text = score;
-                        playSE("get.wav");
+                        playSE("get.mp3");
                     }
                 });
                 return sprite;
@@ -387,7 +387,7 @@ function main() {
                         gameScene.removeEventListener(Event.ENTER_FRAME, createObject);
                         gameScene.tl.cue({45: showGameover});
                         stopBGM();
-                        playSE("hit.wav");
+                        playSE("hit.mp3");
                     }
                 });
                 return sprite;
@@ -527,7 +527,7 @@ function main() {
                 this.frame = [0];
                 this.removeEventListener(Event.TOUCH_START, touchStart);
                 this.removeEventListener(Event.TOUCH_END, touchEnd);
-                playSE("start.wav");
+                playSE("start.mp3");
                 callback();
             };
             sprite.addEventListener(Event.TOUCH_START, touchStart);
@@ -755,7 +755,7 @@ function main() {
                     if (currentIndex === -1) {
                         return;
                     }
-                    playSE("keypress.wav");
+                    playSE("keypress.mp3");
                     if (currentIndex === 27) {
                         if (0 < nameIndex) {
                             nameIndex--;
