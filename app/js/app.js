@@ -621,10 +621,10 @@ function main() {
                 label.font = "bold 16px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
                 return label;
             })();
-            var retry = newButton("retry.png", GAMEOVER_TOP + 90, function () {
+            var retry = newButton("retry.png", GAMEOVER_TOP + 150, function () {
                 scene.tl.cue({10: startNewGame});
             });
-            var sendScore = newButton("send-score.png", GAMEOVER_TOP + 150, function () {
+            var sendScore = newButton("send-score.png", GAMEOVER_TOP + 90, function () {
                 scene.tl.cue({10: showSendScore});
             });
 
