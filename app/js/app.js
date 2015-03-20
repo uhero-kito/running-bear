@@ -958,6 +958,10 @@ function main() {
          * ランキング画面を表示します
          */
         var showRanking = function (ranking) {
+            var RANKING_TOP = 70;
+            var RANKING_ITEM_WIDTH = 180;
+            var RANKING_ITEM_HEIGHT = 25;
+            var RETRY_TOP = RANKING_TOP + (11 * RANKING_ITEM_HEIGHT) + 20;
             var scene = new Scene();
             var title = (function () {
                 var width = 320;
@@ -968,10 +972,37 @@ function main() {
                 sprite.y = 0;
                 return sprite;
             })();
-            var retry = newButton("retry.png", DISPLAY_HEIGHT - 90, function () {
-                scene.tl.cue({5: startNewGame});
+            var getText = function (text, x, align) {
+                var label = new Label();
+                label.text = text;
+                label.textAlign = align;
+                label.color = "#ffffff";
+                label.font = "16px/16px 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif";
+                label.x = x;
+                return label;
+            };
+            var getRankingItem = function (entry, index, align) {
+                var group = new Group();
+                var x = (DISPLAY_WIDTH / 2) - (RANKING_ITEM_WIDTH / 2);
+                group.y = RANKING_TOP + (RANKING_ITEM_HEIGHT * (index + 1));
+                group.addChild(getText(String(index + 1) + ".", -DISPLAY_WIDTH + x + 40, "right"));
+                group.addChild(getText(entry["name"], x + 40, "left"));
+                group.addChild(getText(entry["score"], -x + 10, "right"));
+                return group;
+            };
+            var retry = newButton("retry.png", RETRY_TOP, function () {
+                scene.tl.cue({10: startNewGame});
             });
+            var date = (function () {
+                var label = getText(ranking["date"], 15, "center");
+                label.y = RANKING_TOP;
+                return label;
+            })();
             scene.addChild(title);
+            scene.addChild(date);
+            ranking["ranking"].map(function (entry, index) {
+                scene.addChild(getRankingItem(entry, index));
+            });
             scene.addChild(retry);
             scene.addChild(newVolumeControl(false));
             core.replaceScene(scene);
