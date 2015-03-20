@@ -13,6 +13,6 @@
     "launch_path": "/index.html",
     "name": "Running Bear",
     "type": "web",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "csp": "'default-src' *;'script-src' 'self';'object-src' 'none';'frame-src' 'self';'style-src' 'unsafe-inline' 'self';'connect-src'"
 }
