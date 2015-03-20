@@ -745,7 +745,7 @@ function main() {
                     if (currentIndex === 27) {
                         if (0 < nameIndex) {
                             nameIndex--;
-                            delete nameNumbers[nameIndex];
+                            nameNumbers.splice(nameIndex, 1);
                             textareaChars[nameIndex].image = null;
                         }
                     } else {
