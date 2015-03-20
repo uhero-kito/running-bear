@@ -370,9 +370,7 @@ function main() {
                             return 2 * (x * x * (c - b) + b - (peak * peak));
                         });
                         gameScene.removeEventListener(Event.ENTER_FRAME, createObject);
-                        gameScene.tl.cue({
-                            45: showGameover
-                        });
+                        gameScene.tl.cue({45: showGameover});
                         stopBGM();
                         playSE("hit.wav");
                     }
@@ -625,7 +623,7 @@ function main() {
                 scene.tl.cue({10: startNewGame});
             });
             var sendScore = newButton("send-score.png", GAMEOVER_TOP + 90, function () {
-                scene.tl.cue({10: showSendScore});
+                scene.tl.cue({5: showSendScore});
             });
 
             scene.addChild(blackBackground);
