@@ -28,7 +28,6 @@ function main() {
         var height = doc.clientHeight;
         var canvasAspect = DISPLAY_WIDTH / DISPLAY_HEIGHT;
         var windowAspect = doc.clientWidth / doc.clientHeight;
-        console.log("canvas:%s, window:%s", canvasAspect, windowAspect);
         var bodyStyle = document.getElementsByTagName("body")[0].style;
         if (canvasAspect < windowAspect) {
             var newHeight = height;
@@ -40,7 +39,6 @@ function main() {
         }
         bodyStyle.width = newWidth + "px";
         bodyStyle.height = newHeight + "px";
-        console.log(bodyStyle);
     })();
 
     enchant();
