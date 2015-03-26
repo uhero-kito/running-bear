@@ -18,7 +18,8 @@ function main() {
 
     var lastScore = 0;
     var highScore = 0;
-    var volume = false;
+    var volume = 0;
+    var volumeLevels = [0, 0.25, 0.5, 1];
     var playingBGM = null;
 
     // 表示領域をデバイスの中央に設定します
@@ -41,34 +42,95 @@ function main() {
         bodyStyle.height = newHeight + "px";
     })();
 
+    var checkMp3ByBrowser = function (browser, useragent) {
+        if (browser === "ie") {
+            return true;
+        }
+        if (/iPhone/.test(useragent)) {
+            return true;
+        }
+        if (/iPad/.test(useragent)) {
+            return true;
+        }
+        return false;
+    };
+
+    /**
+     * 引数の basename ("main" など) を、実際のファイル名 ("sound/main.ogg" など) に変換します。
+     * 各ブラウザがサポートしているフォーマットの違いを吸収するため、
+     * IE と iOS については .mp3, その他のブラウザは .ogg 形式を返します。
+     * 
+     * @param {type} name ファイルの basename
+     * @returns {String} ファイル名
+     */
+    var getSoundFilename = function (name) {
+        var ext = checkMp3ByBrowser(enchant.ENV.BROWSER, navigator.userAgent) ? ".mp3" : ".ogg";
+        return "sound/" + name + ext;
+    };
+
+    /**
+     * 指定された名前に対応する Sound オブジェクトを返します。
+     * @param {String} name
+     * @returns {Sound}
+     */
+    var getSoundByName = function (name) {
+        return core.assets[getSoundFilename(name)];
+    };
+
     enchant();
     var core = new Core(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png", "img/cancel.png", "img/send-score.png", "img/volume.png", "img/yourname.png", "img/alphabets.png", "img/ranking.png"
-            , "sound/main.mp3", "sound/hit.mp3", "sound/get.mp3", "sound/start.mp3", "sound/keypress.mp3");
+    core.preload("img/chara1.png", "img/icon1.png", "img/cursor.png", "img/heart.png", "img/title-logo.png", "img/start.png", "img/gameover.png", "img/retry.png", "img/cancel.png", "img/send-score.png", "img/volume.png", "img/yourname.png", "img/alphabets.png", "img/ranking.png");
+    ["main", "hit", "get", "start", "keypress"].map(function (name) {
+        core.preload(getSoundFilename(name));
+    });
     core.fps = 15;
     core.onload = function () {
         var playSE = function (filename) {
             if (!volume) {
                 return;
             }
-            var se = core.assets["sound/" + filename];
-            se.clone().play();
+            var se = getSoundByName(filename);
+            var vol = volumeLevels[volume];
+            switch (enchant.ENV.BROWSER) {
+                case "firefox":
+                    se.play();
+                    se.volume = vol;
+                    break;
+                case "ie":
+                    // IE 10 以下では clone() の負荷が高く遅延が目立つため、既存の Sound オブジェクトを再利用します。
+                    // 既存の Sound が再生中の場合は一度 stop します。
+                    if (/MSIE/.test(navigator.userAgent)) {
+                        se.stop();
+                        se.play();
+                        se.volume = vol;
+                    } else {
+                        var newSE = se.clone();
+                        newSE.play();
+                        newSE.volume = vol;
+                    }
+                    break;
+                default:
+                    var newSE = se.clone();
+                    newSE.play();
+                    newSE.volume = vol;
+                    break;
+            }
         };
         var playLoop = function () {
             if (!playingBGM) {
                 return;
             }
-            var bgm = core.assets["sound/" + playingBGM];
+            var bgm = getSoundByName(playingBGM);
             if (!bgm.src) {
                 bgm.play();
             }
         };
         var playBGM = function (filename) {
             if (playingBGM) {
-                core.assets["sound/" + playingBGM].stop();
+                getSoundByName(playingBGM).stop();
             }
-            var bgm = core.assets["sound/" + filename];
-            var vol = volume ? 1 : 0;
+            var bgm = getSoundByName(filename);
+            var vol = volumeLevels[volume];
             bgm.play();
             bgm.volume = vol;
             if (bgm.src) {
@@ -82,7 +144,7 @@ function main() {
             if (!playingBGM) {
                 return;
             }
-            var bgm = core.assets["sound/" + playingBGM];
+            var bgm = getSoundByName(playingBGM);
             bgm.stop();
             if (bgm.src) {
                 bgm.src.loop = false;
@@ -167,20 +229,22 @@ function main() {
             var width = 64;
             var height = 64;
             var sprite = new Sprite(width, height);
-            var index = (isBlack ? 0 : 2) + (volume ? 0 : 1); // 黒 ON: 0, 黒 OFF: 1, 白 ON: 2, 白 OFF: 3
+            var index = (isBlack ? 0 : 4) + volume; // 黒: 0 ～ 3, 白: 4 ～ 7
             sprite.image = core.assets["img/volume.png"];
-            sprite.frame = [index];
+            sprite.frame = index;
             sprite.x = DISPLAY_WIDTH - width;
             sprite.y = DISPLAY_HEIGHT - height;
             sprite.addEventListener(Event.TOUCH_END, function () {
-                volume = volume ? false : true; // toggle
+                volume = (volume + 1) % 4; // 0, 1, 2, 3, 0, 1, ...
                 if (playingBGM) {
-                    var bgm = core.assets["sound/" + playingBGM];
-                    var vol = volume ? 1 : 0;
+                    var bgm = getSoundByName(playingBGM);
+                    var vol = volumeLevels[volume];
                     bgm.volume = vol;
+                } else {
+                    playSE("get");
                 }
-                var index = (isBlack ? 0 : 2) + (volume ? 0 : 1);
-                sprite.frame = [index];
+                var index = (isBlack ? 0 : 4) + volume;
+                sprite.frame = index;
             });
             return sprite;
         };
@@ -325,7 +389,7 @@ function main() {
                         gameScene.removeChild(sprite);
                         score++;
                         scoreNumber.text = score;
-                        playSE("get.mp3");
+                        playSE("get");
                     }
                 });
                 return sprite;
@@ -387,7 +451,7 @@ function main() {
                         gameScene.removeEventListener(Event.ENTER_FRAME, createObject);
                         gameScene.tl.cue({45: showGameover});
                         stopBGM();
-                        playSE("hit.mp3");
+                        playSE("hit");
                     }
                 });
                 return sprite;
@@ -499,7 +563,7 @@ function main() {
             };
             gameScene.addEventListener(Event.ENTER_FRAME, createObject);
             core.replaceScene(gameScene);
-            playBGM("main.mp3");
+            playBGM("main");
         };
         var blackBackground = (function () {
             var sprite = new Sprite(DISPLAY_WIDTH, DISPLAY_HEIGHT);
@@ -527,7 +591,7 @@ function main() {
                 this.frame = [0];
                 this.removeEventListener(Event.TOUCH_START, touchStart);
                 this.removeEventListener(Event.TOUCH_END, touchEnd);
-                playSE("start.mp3");
+                playSE("start");
                 callback();
             };
             sprite.addEventListener(Event.TOUCH_START, touchStart);
@@ -755,7 +819,7 @@ function main() {
                     if (currentIndex === -1) {
                         return;
                     }
-                    playSE("keypress.mp3");
+                    playSE("keypress");
                     if (currentIndex === 27) {
                         if (0 < nameIndex) {
                             nameIndex--;
