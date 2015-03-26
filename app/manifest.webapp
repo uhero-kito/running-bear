@@ -2,7 +2,7 @@
     "default_locale" : "ja",
     "description"    : "ボールを避けながらハートを集めよう！ enchant.js を使った Firefox OS アプリのテストです。",
     "developer" : {
-        "name" : "takayuki, KITO",
+        "name" : "KITO, takayuki",
         "url"  : "https://github.com/uhero-kito"
     },
     "icons" : {
