@@ -18,7 +18,8 @@ function main() {
 
     var lastScore = 0;
     var highScore = 0;
-    var volume = false;
+    var volume = 0;
+    var volumeLevels = [0, 0.25, 0.5, 1];
     var playingBGM = null;
 
     // 表示領域をデバイスの中央に設定します
@@ -89,9 +90,11 @@ function main() {
                 return;
             }
             var se = getSoundByName(filename);
+            var vol = volumeLevels[volume];
             switch (enchant.ENV.BROWSER) {
                 case "firefox":
                     se.play();
+                    se.volume = vol;
                     break;
                 case "ie":
                     // IE 10 以下では clone() の負荷が高く遅延が目立つため、既存の Sound オブジェクトを再利用します。
@@ -99,12 +102,17 @@ function main() {
                     if (/MSIE/.test(navigator.userAgent)) {
                         se.stop();
                         se.play();
+                        se.volume = vol;
                     } else {
-                        se.clone().play();
+                        var newSE = se.clone();
+                        newSE.play();
+                        newSE.volume = vol;
                     }
                     break;
                 default:
-                    se.clone().play();
+                    var newSE = se.clone();
+                    newSE.play();
+                    newSE.volume = vol;
                     break;
             }
         };
@@ -122,7 +130,7 @@ function main() {
                 getSoundByName(playingBGM).stop();
             }
             var bgm = getSoundByName(filename);
-            var vol = volume ? 1 : 0;
+            var vol = volumeLevels[volume];
             bgm.play();
             bgm.volume = vol;
             if (bgm.src) {
@@ -221,20 +229,20 @@ function main() {
             var width = 64;
             var height = 64;
             var sprite = new Sprite(width, height);
-            var index = (isBlack ? 0 : 2) + (volume ? 0 : 1); // 黒 ON: 0, 黒 OFF: 1, 白 ON: 2, 白 OFF: 3
+            var index = (isBlack ? 0 : 4) + volume; // 黒: 0 ～ 3, 白: 4 ～ 7
             sprite.image = core.assets["img/volume.png"];
-            sprite.frame = [index];
+            sprite.frame = index;
             sprite.x = DISPLAY_WIDTH - width;
             sprite.y = DISPLAY_HEIGHT - height;
             sprite.addEventListener(Event.TOUCH_END, function () {
-                volume = volume ? false : true; // toggle
+                volume = (volume + 1) % 4; // 0, 1, 2, 3, 0, 1, ...
                 if (playingBGM) {
                     var bgm = getSoundByName(playingBGM);
-                    var vol = volume ? 1 : 0;
+                    var vol = volumeLevels[volume];
                     bgm.volume = vol;
                 }
-                var index = (isBlack ? 0 : 2) + (volume ? 0 : 1);
-                sprite.frame = [index];
+                var index = (isBlack ? 0 : 4) + volume;
+                sprite.frame = index;
             });
             return sprite;
         };
