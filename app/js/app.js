@@ -240,6 +240,8 @@ function main() {
                     var bgm = getSoundByName(playingBGM);
                     var vol = volumeLevels[volume];
                     bgm.volume = vol;
+                } else {
+                    playSE("get");
                 }
                 var index = (isBlack ? 0 : 4) + volume;
                 sprite.frame = index;
